@@ -4,10 +4,11 @@
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
-
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 //Load Composer's autoloader
 require 'vendor/autoload.php';
-
+session_start();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -45,58 +46,11 @@ require 'vendor/autoload.php';
 
     <!-- Nav Item - Dashboard -->
     <li class="nav-item">
-        <a class="nav-link" href="index.html">
+        <a class="nav-link" href="MainPage.php">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Dashboard</span></a>
     </li>
 
-    <!-- Divider -->
-    <hr class="sidebar-divider">
-
-    <!-- Heading -->
-    <div class="sidebar-heading">
-        Interface
-    </div>
-
-    <!-- Nav Item - Pages Collapse Menu -->
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
-            aria-expanded="true" aria-controls="collapseTwo">
-            <i class="fas fa-fw fa-cog"></i>
-            <span>Components</span>
-        </a>
-        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">Custom Components:</h6>
-                <a class="collapse-item" href="buttons.html">Buttons</a>
-                <a class="collapse-item" href="cards.html">Cards</a>
-            </div>
-        </div>
-    </li>
-
-    <!-- Nav Item - Utilities Collapse Menu -->
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
-            aria-expanded="true" aria-controls="collapseUtilities">
-            <i class="fas fa-fw fa-wrench"></i>
-            <span>Utilities</span>
-        </a>
-        <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities"
-            data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">Custom Utilities:</h6>
-                <a class="collapse-item" href="utilities-color.html">Colors</a>
-                <a class="collapse-item" href="utilities-border.html">Borders</a>
-                <a class="collapse-item" href="utilities-animation.html">Animations</a>
-                <a class="collapse-item" href="utilities-other.html">Other</a>
-            </div>
-        </div>
-    </li>
-
-    <!-- Divider -->
-    <hr class="sidebar-divider">
-
-    <!-- Heading -->
     <div class="sidebar-heading">
         Addons
     </div>
@@ -119,19 +73,7 @@ require 'vendor/autoload.php';
         </div>
     </li>
 
-    <!-- Nav Item - Charts -->
-    <li class="nav-item">
-        <a class="nav-link" href="charts.html">
-            <i class="fas fa-fw fa-chart-area"></i>
-            <span>Charts</span></a>
-    </li>
 
-    <!-- Nav Item - Tables -->
-    <li class="nav-item">
-        <a class="nav-link" href="tables.html">
-            <i class="fas fa-fw fa-table"></i>
-            <span>Tables</span></a>
-    </li>
 
     <!-- Divider -->
     <hr class="sidebar-divider d-none d-md-block">
@@ -262,7 +204,7 @@ require 'vendor/autoload.php';
                     <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
                         aria-labelledby="messagesDropdown">
                         <h6 class="dropdown-header">
-                            Message Center
+                            Mess    age Center
                         </h6>
                         <a class="dropdown-item d-flex align-items-center" href="#">
                             <div class="dropdown-list-image mr-3">
@@ -418,56 +360,26 @@ require 'vendor/autoload.php';
                             if(strlen($password) < 8 || !$number || !$uppercase || !$lowercase || !$specialChars) {
                             }
                             else{
-                            if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                                
+                            if (filter_var($email, FILTER_VALIDATE_EMAIL)) { 
 
-                            // $mail = new PHPMailer(true);
-                            // try {
-                            //     //Server settings
-                            //     $mail->isSMTP(); // Set mailer to use SMTP
-                            //     $mail->Host = 'smtp.mailjet.com'; // Mailjet SMTP server
-                            //     $mail->SMTPAuth = true; // Enable SMTP authentication
-                            //     $mail->Username = '6d1c0c28754b29f0b585ce4293a997a6'; // Your Mailjet username
-                            //     $mail->Password = '56edebe0e8a2f9bc2c461a8f855d8858'; // Your Mailjet password
-                            //     $mail->SMTPSecure = 'tls'; // Enable TLS encryption, `ssl` also accepted
-                            //     $mail->Port = 587; // TCP port to connect to
-                            
-                            //     //Recipients
-                            //     $mail->setFrom('burner.mailer.xd@gmail.com', 'Your Name');
-                            //     $mail->addAddress($email, 'Recipient Name'); // Add a recipient
-                            //     $mail->addReplyTo('burner.mailer.xd@gmail.com', 'Your Name');
-                            
-                            //     // Content
-                            //     $mail->isHTML(true); // Set email format to HTML
-                            //     $mail->Subject = 'Test Email via PHPMailer';
-                            //     $mail->Body    = 'This is the HTML message body <b>in bold!</b>';
-                            //     $mail->AltBody = 'This is the plain text version for non-HTML mail clients';
-                            
-                                // Send the email
-                            //     $mail->send();
-                            //     echo 'Message has been sent';
-                            // } catch (Exception $e) {
-                            //     echo 'Message could not be sent. Mailer Error: ', $mail->ErrorInfo;
-                            // }
-                            
-                            
-                            
-                            $servername = "localhost";
-                            $username = "root";
-                            $pswrd = "";
-                            $db = "logindb";
-                            $conn = new mysqli($servername, $username, $pswrd, $db);
 
-                            if ($conn->connect_error) {
-                            die("Connection failed: " . $conn->connect_error);
-                            }
-                            $hash = password_hash($password, PASSWORD_DEFAULT);
 
-                            $registerDB = "INSERT INTO Users (email, login, passHash) VALUES ('$email', '$login', '$hash')";
-                            if (mysqli_query($conn, $registerDB)) {
-                                echo "<h3 class='text-success'>Zarejestrowano!</h3>";
-                                $conn->close();
-                            }
+                                $servername = "localhost";
+                                $username = "root";
+                                $pswrd = "";
+                                $db = "logindb";
+                                $conn = new mysqli($servername, $username, $pswrd, $db);
+
+                                if ($conn->connect_error) {
+                                die("Connection failed: " . $conn->connect_error);
+                                }
+                                $hash = password_hash($password, PASSWORD_DEFAULT);
+
+                                $registerDB = "INSERT INTO Users (email, login, passHash) VALUES ('$email', '$login', '$hash',)";
+                                if (mysqli_query($conn, $registerDB)) {
+                                    echo "<h3 class='text-success'>Zarejestrowano!</h3>";
+                                    $conn->close();
+                                }
                         }
                         }
                         }

@@ -1,30 +1,10 @@
 <?php
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+require 'jwt.php';
+require 'vendor/autoload.php';
 session_start();
-    $token = @$_GET['token'];
-
-    $servername = "localhost";
-    $username = "root";
-    $pswrd = "";
-    $db = "logindb";
-    $conn = new mysqli($servername, $username, $pswrd, $db);
-
-    if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-    }
-
-    $tokencheck = "SELECT * from users where token = '$token'";
-    $result = mysqli_query($conn, $tokencheck);
-    $matchFound = mysqli_num_rows($result);
-    if(!$matchFound)
-    {
-        header("Location: forgotPass.php");
-        $conn->close();
-    }else{
-    $conn->close();
-    }
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -61,7 +41,7 @@ session_start();
 
     <!-- Nav Item - Dashboard -->
     <li class="nav-item">
-        <a class="nav-link" href="MainPage.php">
+        <a class="nav-link" href="test.php">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Dashboard</span></a>
     </li>
@@ -117,23 +97,6 @@ session_start();
         Addons
     </div>
 
-    <!-- Nav Item - Pages Collapse Menu -->
-    <li class="nav-item active">
-        <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePages" aria-expanded="true"
-            aria-controls="collapsePages">
-            <i class="fas fa-fw fa-folder"></i>
-            <span>Pages</span>
-        </a>
-        <div id="collapsePages" class="collapse show" aria-labelledby="headingPages"
-            data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">Login Screens:</h6>
-                <a class="collapse-item" href="login.php">Login</a>
-                <a class="collapse-item" href="register.php">Register</a>
-                <a class="collapse-item" href="forgotPass.php">Forgot Password</a>
-            </div>
-        </div>
-    </li>
 
     <!-- Nav Item - Charts -->
     <li class="nav-item">
@@ -144,9 +107,9 @@ session_start();
 
     <!-- Nav Item - Tables -->
     <li class="nav-item">
-        <a class="nav-link" href="tables.html">
-            <i class="fas fa-fw fa-table"></i>
-            <span>Tables</span></a>
+        <a class="nav-link" href="logout.php">
+            <i class="bi bi-box-arrow-left"></i>
+            <span>Logout</span></a>
     </li>
 
     <!-- Divider -->
@@ -345,7 +308,7 @@ session_start();
                     <!-- Dropdown - User Information -->
                     <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                         aria-labelledby="userDropdown">
-                        <a class="dropdown-item" href="#">
+                        <a class="dropdown-item" href="profile.php">
                             <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                             Profile
                         </a>
@@ -367,7 +330,7 @@ session_start();
 
             </ul>
 
-        </nav>
+            </nav>
         <!-- End of Topbar -->
 
         <!-- Begin Page Content -->
@@ -376,90 +339,34 @@ session_start();
         <div class="container-md">
     <div class="row justify-content-center">
             <div class="col-md-6">
-                <div class="card px-5 py-5 ">
-                    <form method="post">
-                    <div class="mb-3 align-items-center">
-                        <h3>Zresetuj hasło</h3>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">New password</label>
-                            <input type="password" class="form-control form-control-lg" id="password" name="password" maxlength="30" required></input> 
-                            <?php
-                            if(isset($_POST['w'])){
-
-                                $password = @$_POST['password'];;
-                                $number = preg_match('@[0-9]@', $password);
-                                $uppercase = preg_match('@[A-Z]@', $password);
-                                $lowercase = preg_match('@[a-z]@', $password);
-                                $specialChars = preg_match('@[^\w]@', $password);
-                                
-                                if(strlen($password) < 8 || !$number || !$uppercase || !$lowercase || !$specialChars) {
-                                echo "<small><p class='text-danger'> Password must be at least 8 characters, have uppercase and lowercase letters, a number and a special symbol.</p></small>";
-                                }                                
-                            }
-                        ?>
-                        </div>
-
-                        <div class="mb-3"><input class="btn btn-dark w-100" type="submit" name="w"></input> </div>
-                        <?php
-                            if(isset($_POST['w'])){
-                                $password = @$_POST['password'];;
-                                $number = preg_match('@[0-9]@', $password);
-                                $uppercase = preg_match('@[A-Z]@', $password);
-                                $lowercase = preg_match('@[a-z]@', $password);
-                                $specialChars = preg_match('@[^\w]@', $password);
-                                
-                                if(strlen($password) < 8 || !$number || !$uppercase || !$lowercase || !$specialChars) {
-                                echo "<small><p class='text-danger'> Password must be at least 8 characters, have uppercase and lowercase letters, a number and a special symbol.</p></small>";
-                                }   
-                                else{
-                                    echo "<h3 class='text-success'>Zresetowano!</h3><small><a class='text-primary' href='MainPage.php'>Powrót</a></small>";
-                                    $token = @$_GET['token'];
-                                    $servername = "localhost";
-                                    $username = "root";
-                                    $pswrd = "";
-                                    $db = "logindb";
-                                    $conn = new mysqli($servername, $username, $pswrd, $db);
-
-                                    if ($conn->connect_error) {
-                                    die("Connection failed: " . $conn->connect_error);
-                                    }
-
-                                    $resetpass = "UPDATE Users SET password = '$password' WHERE token = '$token'";
-                                    if (mysqli_query($conn, $resetpass)) {
-                                        echo "<h3 class='text-success'>Zresetowano!</h3>";
-                                        $tokenupdate = "UPDATE users SET token = null WHERE password = '$password'";
-                                        mysqli_query($conn, $resetpass);
-                                        $conn->close();
-                                    }
-
-                                }  
-                            }
-                        ?>
-                    </div>
-                    </form>
+                <div class="card px-5 py-5">
+                 <div class="mb-3"> 
+                    <?php
+                    $jwt = $_SESSION['jwt'];
+                    $decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
+                    echo "<h5>Username - ".$decoded->username."</h5>
+                    <h5>E-mail - ".$decoded->email."</h5>";
+                    ?>
+                 </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-
         </div>
         <!-- /.container-fluid -->
 
     </div>
     <!-- End of Main Content -->
 
-    <!-- Footer -->
 
     <!-- End of Footer -->
 
+    
 </div>
 <!-- End of Content Wrapper -->
 
 </div>
-
-
 
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
@@ -474,7 +381,3 @@ session_start();
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>
-
-
-
-
