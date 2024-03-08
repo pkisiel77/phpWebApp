@@ -1,29 +1,38 @@
 <?php
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
-require 'jwt.php';
-require 'vendor/autoload.php';
-session_start();
-    $jwt = $_SESSION['jwt'];
-    $servername = "localhost";
-    $username = "root";
-    $pswrd = "";
-    $db = "logindb";
-    $conn = new mysqli($servername, $username, $pswrd, $db);
-
+$servername = "localhost";
+$username = "root";
+$pswrd = "";
+$db = "logindb";
+$conn = new mysqli($servername, $username, $pswrd, $db);
+try {
+    $pdo = new PDO("mysql:host=localhost;dbname=logindb;charset=utf8", "root", "");
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    echo "Connection failed: " . $e->getMessage();
+}
     if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+        die("Connection failed: " . $conn->connect_error);
     }
-    $tokencheck = "SELECT * from users where jwtToken = '$jwt'";
-    $result = mysqli_query($conn, $tokencheck);
-    $matchFound = mysqli_num_rows($result);
-    if(!$matchFound)
-    {
-        header("Location: MainPage.php");
-        $conn->close();
-    }
-?>
+    if(isset($_POST['w'])){
+    
+    $rowlogin = $_POST['lgn']; 
+    $logincheck = "SELECT * from users where login = '$rowlogin'";
+    $resultlog = mysqli_query($conn, $logincheck);
+    $fetchinfo = @mysqli_fetch_assoc($resultlog);
+    $status = $fetchinfo['status'];
 
+    // Toggle the value of is_active
+    $new_value = $status == 1 ? 0 : 1;
+    
+    $update_sql = "UPDATE users SET status = :new_value WHERE login = :rowlogin";
+    $stmt = $pdo->prepare($update_sql);
+    $stmt->bindParam(':new_value', $new_value);
+    $stmt->bindParam(':rowlogin', $rowlogin);
+    $stmt->execute();
+    header("Location: ".$_SERVER['PHP_SELF']);
+    exit();
+    }
+    ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,15 +40,29 @@ session_start();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-</head>
+
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link
         href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
         rel="stylesheet">
-
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
+
+    <!-- datatables -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js" defer></script>
+
+    <link href="//cdn.datatables.net/2.0.2/css/dataTables.dataTables.min.css" rel="stylesheet">
+    
+    <script src="//cdn.datatables.net/2.0.2/js/dataTables.min.js"></script>
+    <style>
+        .paginate_button {
+            margin-right: 5px; /* Adjust the spacing as needed */
+        }
+    </style>
+
+</head>
 <body>
 
 <div id="wrapper">
@@ -69,11 +92,8 @@ session_start();
     <hr class="sidebar-divider">
 
     <!-- Heading -->
-<?php
-$jwt = $_SESSION['jwt'];
-$decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
-if($decoded->admin){
-    echo "<div class='sidebar-heading'>
+
+<div class='sidebar-heading'>
         Interface
     </div>
 
@@ -135,9 +155,9 @@ if($decoded->admin){
 
 
 
-<!-- End of Sidebar -->";
-}
-?>
+<!-- End of Sidebar -->
+
+
     <!-- Nav Item - logout -->
     <li class='nav-item'>
         <a class='nav-link' href='logout.php'>
@@ -367,14 +387,54 @@ if($decoded->admin){
 
         <div class="container-md">
     <div class="row justify-content-center">
-            <div class="col-md-6">
+            <div class="col-md-10">
                 <div class="card px-5 py-5">
                  <div class="mb-3"> 
                  <?php
-                    $jwt = $_SESSION['jwt'];
-                    $decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
-                    echo "<h3>Welcome ".$decoded->username."</h3>";
-                ?>
+
+                    $getdata = "SELECT * from users";
+                    $result = mysqli_query($conn, $getdata);
+                    $data = array();
+                    if ($result->num_rows > 0) {
+                        while ($row = $result->fetch_assoc()) {
+                            $data[] = $row;
+                        }
+                    }
+                    ?>
+                    
+<table id="tabledata" class="table table-striped" style="width:100%">
+    <thead>
+        <tr>
+            <th>Login</th>
+            <th>Email</th>
+            <th>Admin</th>
+            <th>Status</th>
+            <th>Change</th>
+        </tr>
+    </thead>
+    <tbody>
+        
+        <?php foreach($data as $row): ?>
+            <tr>
+                <td><?php echo $row['login']; ?></td> 
+                <td><?php echo $row['email']; ?></td>
+                <td><?php echo $row['admin']; ?></td>
+                <td><?php echo $row['status']; ?></td>
+                <td>
+                <form method="POST">
+                <input type="hidden" name="lgn" value="<?php echo $row['login']; ?>">
+                <input class="btn btn-dark btn-sm w-10" value="Toggle" type="submit" name="w">
+                </form>
+                </td>
+            </tr>
+            
+        <?php endforeach; ?>
+
+        
+    </tbody>
+</table>
+
+
 
                  </div>
                 </div>
@@ -409,5 +469,20 @@ if($decoded->admin){
     <script src="js/sb-admin-2.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-</body>
-</html>
+<script>
+    $(document).ready(function() {
+        $('#tabledata').DataTable({
+        paging: true, // Enable paging
+        pageLength: 3,
+        lengthChange: false,
+        "language": {
+                    "paginate": {
+                        "previous": "<i class='fas fa-angle-double-left'></i>",
+                        "next": "<i class='fas fa-angle-double-right'></i>"
+                    }
+                }
+        }); 
+    });
+
+        
+</script>
