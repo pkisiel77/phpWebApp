@@ -16,8 +16,8 @@ die("Connection failed: " . $conn->connect_error);
 
 
 $jwt = $_SESSION['jwt'];
-$resetpass = "UPDATE Users SET jwtToken = null WHERE jwtToken = '$jwt'";
-if (mysqli_query($conn, $resetpass)) {
+$removejwt = "UPDATE Users SET jwtToken = null WHERE jwtToken = '$jwt'";
+if (mysqli_query($conn, $removejwt)) {
     header("Location: MainPage.php");
     $conn->close();
     session_destroy();  

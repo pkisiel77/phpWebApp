@@ -362,7 +362,7 @@ session_start();
                             else{
                             if (filter_var($email, FILTER_VALIDATE_EMAIL)) { 
 
-
+                                
 
                                 $servername = "localhost";
                                 $username = "root";
@@ -374,9 +374,18 @@ session_start();
                                 die("Connection failed: " . $conn->connect_error);
                                 }
                                 $hash = password_hash($password, PASSWORD_DEFAULT);
-
-                                $registerDB = "INSERT INTO Users (email, login, passHash) VALUES ('$email', '$login', '$hash',)";
-                                if (mysqli_query($conn, $registerDB)) {
+                                try {
+                                    $pdo = new PDO("mysql:host=localhost;dbname=logindb;charset=utf8", "root", "");
+                                    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                                } catch(PDOException $e) {
+                                    echo "Connection failed: " . $e->getMessage();
+                                }
+                                $registerDB = "INSERT INTO Users (email, login, passHash) VALUES (:email, :login, :hash)";
+                                $stmt = $pdo->prepare($registerDB);
+                                $stmt->bindParam(':email', $email);
+                                $stmt->bindParam(':login', $login);
+                                $stmt->bindParam(':hash', $hash);
+                                if ($stmt->execute()) {
                                     echo "<h3 class='text-success'>Zarejestrowano!</h3>";
                                     $conn->close();
                                 }

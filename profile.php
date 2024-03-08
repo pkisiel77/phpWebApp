@@ -4,6 +4,24 @@ use Firebase\JWT\Key;
 require 'jwt.php';
 require 'vendor/autoload.php';
 session_start();
+    $jwt = $_SESSION['jwt'];
+    $servername = "localhost";
+    $username = "root";
+    $pswrd = "";
+    $db = "logindb";
+    $conn = new mysqli($servername, $username, $pswrd, $db);
+
+    if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+    }
+    $tokencheck = "SELECT * from users where jwtToken = '$jwt'";
+    $result = mysqli_query($conn, $tokencheck);
+    $matchFound = mysqli_num_rows($result);
+    if(!$matchFound)
+    {
+        header("Location: MainPage.php");
+        $conn->close();
+    }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -50,76 +68,83 @@ session_start();
     <hr class="sidebar-divider">
 
     <!-- Heading -->
-    <div class="sidebar-heading">
+    <?php
+$jwt = $_SESSION['jwt'];
+$decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
+if($decoded->admin){
+    echo "<div class='sidebar-heading'>
         Interface
     </div>
 
     <!-- Nav Item - Pages Collapse Menu -->
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
-            aria-expanded="true" aria-controls="collapseTwo">
-            <i class="fas fa-fw fa-cog"></i>
+    <li class='nav-item'>
+        <a class='nav-link collapsed' href='#' data-toggle='collapse' data-target='#collapseTwo'
+            aria-expanded='true' aria-controls='collapseTwo'>
+            <i class='fas fa-fw fa-cog'></i>
             <span>Components</span>
         </a>
-        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">Custom Components:</h6>
-                <a class="collapse-item" href="buttons.html">Buttons</a>
-                <a class="collapse-item" href="cards.html">Cards</a>
+        <div id='collapseTwo' class='collapse' aria-labelledby='headingTwo' data-parent='#accordionSidebar'>
+            <div class='bg-white py-2 collapse-inner rounded'>
+                <h6 class='collapse-header'>Custom Components:</h6>
+                <a class='collapse-item' href='buttons.html'>Buttons</a>
+                <a class='collapse-item' href='cards.html'>Cards</a>
             </div>
         </div>
     </li>
 
     <!-- Nav Item - Utilities Collapse Menu -->
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
-            aria-expanded="true" aria-controls="collapseUtilities">
-            <i class="fas fa-fw fa-wrench"></i>
+    <li class='nav-item'>
+        <a class='nav-link collapsed' href='#' data-toggle='collapse' data-target='#collapseUtilities'
+            aria-expanded='true' aria-controls='collapseUtilities'>
+            <i class='fas fa-fw fa-wrench'></i>
             <span>Utilities</span>
         </a>
-        <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities"
-            data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">Custom Utilities:</h6>
-                <a class="collapse-item" href="utilities-color.html">Colors</a>
-                <a class="collapse-item" href="utilities-border.html">Borders</a>
-                <a class="collapse-item" href="utilities-animation.html">Animations</a>
-                <a class="collapse-item" href="utilities-other.html">Other</a>
+        <div id='collapseUtilities' class='collapse' aria-labelledby='headingUtilities'
+            data-parent='#accordionSidebar'>
+            <div class='bg-white py-2 collapse-inner rounded'>
+                <h6 class='collapse-header'>Custom Utilities:</h6>
+                <a class='collapse-item' href='utilities-color.html'>Colors</a>
+                <a class='collapse-item' href='utilities-border.html'>Borders</a>
+                <a class='collapse-item' href='utilities-animation.html'>Animations</a>
+                <a class='collapse-item' href='utilities-other.html'>Other</a>
             </div>
         </div>
     </li>
 
     <!-- Divider -->
-    <hr class="sidebar-divider">
+    <hr class='sidebar-divider'>
 
     <!-- Heading -->
-    <div class="sidebar-heading">
+    <div class='sidebar-heading'>
         Addons
     </div>
 
 
     <!-- Nav Item - Charts -->
-    <li class="nav-item">
-        <a class="nav-link" href="charts.html">
-            <i class="fas fa-fw fa-chart-area"></i>
+    <li class='nav-item'>
+        <a class='nav-link' href='charts.html'>
+            <i class='fas fa-fw fa-chart-area'></i>
             <span>Charts</span></a>
     </li>
 
-    <!-- Nav Item - Tables -->
-    <li class="nav-item">
-        <a class="nav-link" href="logout.php">
-            <i class="bi bi-box-arrow-left"></i>
+
+
+<!-- End of Sidebar -->";
+}
+?>
+    <!-- Nav Item - logout -->
+    <li class='nav-item'>
+        <a class='nav-link' href='logout.php'>
+            <i class='bi bi-box-arrow-left'></i>
             <span>Logout</span></a>
     </li>
+        <!-- Divider -->
+        <hr class='sidebar-divider d-none d-md-block'>
 
-    <!-- Divider -->
-    <hr class="sidebar-divider d-none d-md-block">
-
-    <!-- Sidebar Toggler (Sidebar) -->
-    <div class="text-center d-none d-md-inline">
-        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+<!-- Sidebar Toggler (Sidebar) -->
+    <div class='text-center d-none d-md-inline'>
+        <button class='rounded-circle border-0' id='sidebarToggle'></button>
     </div>
-
 </ul>
 <!-- End of Sidebar -->
 
@@ -340,6 +365,81 @@ session_start();
     <div class="row justify-content-center">
             <div class="col-md-6">
                 <div class="card px-5 py-5">
+                <div class="mb-3">
+                <?php
+                $servername = "localhost";
+                $username = "root";
+                $pswrd = "";
+                $db = "logindb";
+                $conn = new mysqli($servername, $username, $pswrd, $db);
+            
+                if ($conn->connect_error) {
+                die("Connection failed: " . $conn->connect_error);
+                }
+                $jwt = $_SESSION['jwt'];
+                $decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
+                $login = $decoded->username;
+                    if(isset($_POST['w'])){
+                        if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["uploaded_file"])) {
+                            // Check if file upload was successful
+                            if ($_FILES["uploaded_file"]["error"] == UPLOAD_ERR_OK) {
+                                // Get the temporary file path
+                                $tempFilePath = $_FILES["uploaded_file"]["tmp_name"];
+                                $maxFileSize = 10 * 1024 * 1024; //10mb size
+                                // Check if the file is not empty
+                                if (filesize($tempFilePath) > 0 && filesize($tempFilePath) < $maxFileSize) {
+                                    // Read file contents
+                                    $fileContents = file_get_contents($tempFilePath);
+                        
+                                    // Process the file contents as needed
+                                    // For example, insert into database or perform other operations
+                        
+                                    
+                                    try {
+                                        $pdo = new PDO("mysql:host=localhost;dbname=logindb;charset=utf8", "root", "");
+                                        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                                    } catch (PDOException $e) {
+                                        if ($e->getCode() == 2006) { // MySQL server has gone away
+                                            // Reconnect to the MySQL server
+                                            // Replace the following lines with your database connection code
+                                            $pdo = new PDO($dsn, $username, $password);
+                                            $stmt = $pdo->prepare($sql);
+                                            $stmt->execute($params);
+                                        } else {
+                                            throw $e; // Re-throw other PDO exceptions
+                                        }
+                                    }
+                
+
+                                    $addavatar = "UPDATE users SET avatar = :avatar WHERE login = :login";
+                                    $stmt = $pdo->prepare($addavatar);
+                                    $stmt->bindParam(':login', $login);
+                                    $stmt->bindParam(':avatar', $fileContents);
+                                    if ($stmt->execute()) {
+                                    }
+                                }
+                                } else {
+                                    echo "Error: Uploaded file is empty or too big.";
+                                }
+                            } else {
+                                echo "Error uploading file: " . $_FILES["uploaded_file"]["error"];
+                            }
+                        }
+                
+                $avatarcheck = "SELECT avatar from users where login = '$login'";
+                $avatarresult = mysqli_query($conn, $avatarcheck);
+                $avatar = @mysqli_fetch_assoc($avatarresult);
+                if ($avatar && $avatar['avatar'] !== null) {
+                    // 'avatar' column is not null, handle the result
+                    // For example, display the avatar
+                    echo '<img src="data:image/jpeg;base64,' . base64_encode($avatar['avatar']) . '" alt="Avatar">';
+                }
+                ?>
+                <form method="post" enctype="multipart/form-data">
+                    <input type="file" name="uploaded_file" accept="image/*">
+                    <input class="btn btn-dark w-10" type="submit" name="w">   
+                </form>    
+                </div>
                  <div class="mb-3"> 
                     <?php
                     $jwt = $_SESSION['jwt'];

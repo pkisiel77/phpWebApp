@@ -325,12 +325,19 @@ session_start();
                                 if ($conn->connect_error) {
                                 die("Connection failed: " . $conn->connect_error);
                                 }
-
+                                try {
+                                    $pdo = new PDO("mysql:host=localhost;dbname=logindb;charset=utf8", "root", "");
+                                    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                                } catch(PDOException $e) {
+                                    echo "Connection failed: " . $e->getMessage();
+                                }
                                 $logincheck = "SELECT * from users where login = '$login'";
                                 $resultlog = mysqli_query($conn, $logincheck);
-                                $email = mysqli_query($conn, "SELECT email from users where login = '$login'");
-                                echo $email;
-                                $hash = @mysqli_fetch_assoc($resultlog)['passHash'];
+                                $fetchinfo = @mysqli_fetch_assoc($resultlog);
+                                $hash = $fetchinfo['passHash'];
+                                $email = $fetchinfo['email'];
+                                $admin = $fetchinfo['admin'];
+
 
                                 $matchFound = mysqli_num_rows($resultlog);
                                 if(!$matchFound)
@@ -340,18 +347,22 @@ session_start();
                                 else{
                                     if (password_verify($password, $hash)) {
                                         $payload = array(
-                                            'admin' => 'False',
+                                            'admin' => false,
                                             'iat' => time(),
                                             'username' => $login,
                                             'password' => $hash,
-                                            'email' => $email
+                                            'email' => $email,
+                                            'admin' => $admin
                                             );
-                                            
+                                        
                                         $jwt = JWT::encode($payload, $secret_key, 'HS256');
-                                        $createjwt = "UPDATE Users SET jwtToken = '$jwt' WHERE login = '$login'";
-                                        $_SESSION['jwt'] = $jwt;
-                                        if (mysqli_query($conn, $createjwt)) {
-                                            
+                                        $createjwt = "UPDATE Users SET jwtToken = :jwt WHERE login = :login";
+                                        $stmt = $pdo->prepare($createjwt);
+                                        $stmt->bindParam(':login', $login);
+                                        $stmt->bindParam(':jwt', $jwt);
+                                        if ($stmt->execute()) {
+                                            echo "<script>window.location.href='UserIndex.php'</script>";
+                                            $_SESSION['jwt'] = $jwt;
                                             $conn->close();
                                         }
                                     } else {
