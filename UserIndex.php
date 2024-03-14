@@ -5,11 +5,11 @@ require 'jwt.php';
 require 'vendor/autoload.php';
 session_start();
     $jwt = $_SESSION['jwt'];
-    $servername = "localhost";
-    $username = "root";
-    $pswrd = "";
-    $db = "logindb";
-    $conn = new mysqli($servername, $username, $pswrd, $db);
+    $servername = "kp120977-001.eu.clouddb.ovh.net";
+    $username = "pwapoc";
+    $pswrd = "AAQWpFyDN85gL4d";
+    $db = "pwapoc";
+    $conn = new mysqli($servername, $username, $pswrd, $db, '35467');
 
     if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -72,7 +72,7 @@ session_start();
 <?php
 $jwt = $_SESSION['jwt'];
 $decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
-if($decoded->admin){
+if($decoded->admin==1){
     echo "<div class='sidebar-heading'>
         Interface
     </div>
@@ -350,7 +350,7 @@ if($decoded->admin){
                             Activity Log
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                        <a class="dropdown-item" href="logout.php">
                             <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                             Logout
                         </a>

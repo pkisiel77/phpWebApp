@@ -4,23 +4,25 @@ use Firebase\JWT\Key;
 require 'jwt.php';
 require 'vendor/autoload.php';
 session_start();
-$servername = "localhost";
-$username = "root";
-$pswrd = "";
-$db = "logindb";
-$conn = new mysqli($servername, $username, $pswrd, $db);
-
-if ($conn->connect_error) {
-die("Connection failed: " . $conn->connect_error);
+$servername = "kp120977-001.eu.clouddb.ovh.net";
+$username = "pwapoc";
+$pswrd = "AAQWpFyDN85gL4d";
+$db = "pwapoc";
+try {
+    $dsn = "mysql:host=$servername;port=35467;dbname=$db";    
+    $pdo = new PDO($dsn, $username, $pswrd);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    echo "Connection failed: " . $e->getMessage();
 }
 
-
 $jwt = $_SESSION['jwt'];
-$removejwt = "UPDATE Users SET jwtToken = null WHERE jwtToken = '$jwt'";
-if (mysqli_query($conn, $removejwt)) {
+$removejwt = "UPDATE users SET jwtToken = null WHERE jwtToken = '$jwt'";
+if ($pdo->query($removejwt)) {
     header("Location: MainPage.php");
     $conn->close();
     session_destroy();  
 }
 
 ?>
+!

@@ -317,37 +317,35 @@ session_start();
                                 $login = @$_POST['login'];
                                 $password = @$_POST['password'];
 
-                                $servername = "localhost";
-                                $username = "root";
-                                $pswrd = "";
-                                $db = "logindb";
-                                $conn = new mysqli($servername, $username, $pswrd, $db);
-                                if ($conn->connect_error) {
-                                die("Connection failed: " . $conn->connect_error);
-                                }
+                                $servername = "kp120977-001.eu.clouddb.ovh.net";
+                                $username = "pwapoc";
+                                $pswrd = "AAQWpFyDN85gL4d";
+                                $db = "pwapoc";
                                 try {
-                                    $pdo = new PDO("mysql:host=localhost;dbname=logindb;charset=utf8", "root", "");
+                                    $dsn = "mysql:host=$servername;port=35467;dbname=$db";    
+                                    $pdo = new PDO($dsn, $username, $pswrd);
                                     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                                 } catch(PDOException $e) {
                                     echo "Connection failed: " . $e->getMessage();
                                 }
-                                $logincheck = "SELECT * from users where login = '$login'";
-                                $resultlog = mysqli_query($conn, $logincheck);
-                                $fetchinfo = @mysqli_fetch_assoc($resultlog);
+                                
+                                $logincheck = "SELECT * from users join user_roles on users.UserID=user_roles.userID where login = '$login'";
+                                $resultlog = $pdo->query($logincheck);
+                                $fetchinfo = $resultlog->fetch(PDO::FETCH_ASSOC);
                                 $hash = $fetchinfo['passHash'];
                                 $email = $fetchinfo['email'];
-                                $admin = $fetchinfo['admin'];
+                                $admin = $fetchinfo['roleID'];
 
 
-                                $matchFound = mysqli_num_rows($resultlog);
-                                if(!$matchFound)
+                                $matchFound = $resultlog->rowCount();
+                                if($matchFound == 0)
                                 {
                                     echo "<small><p class='text-danger'>This account does not exist.</p></small>";
                                 } 
                                 else{
                                     if (password_verify($password, $hash)) {
                                         $payload = array(
-                                            'admin' => false,
+                                            'role' => $admin,
                                             'iat' => time(),
                                             'username' => $login,
                                             'password' => $hash,
@@ -356,14 +354,13 @@ session_start();
                                             );
                                         
                                         $jwt = JWT::encode($payload, $secret_key, 'HS256');
-                                        $createjwt = "UPDATE Users SET jwtToken = :jwt WHERE login = :login";
+                                        $createjwt = "UPDATE users SET jwtToken = :jwt WHERE login = :login";
                                         $stmt = $pdo->prepare($createjwt);
                                         $stmt->bindParam(':login', $login);
                                         $stmt->bindParam(':jwt', $jwt);
                                         if ($stmt->execute()) {
                                             echo "<script>window.location.href='UserIndex.php'</script>";
                                             $_SESSION['jwt'] = $jwt;
-                                            $conn->close();
                                         }
                                     } else {
                                         echo "<small><p class='text-danger'>Invalid password.</p></small>";;

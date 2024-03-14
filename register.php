@@ -364,18 +364,18 @@ session_start();
 
                                 
 
-                                $servername = "localhost";
-                                $username = "root";
-                                $pswrd = "";
-                                $db = "logindb";
-                                $conn = new mysqli($servername, $username, $pswrd, $db);
+                                $servername = "kp120977-001.eu.clouddb.ovh.net";
+                                $username = "pwapoc";
+                                $pswrd = "AAQWpFyDN85gL4d";
+                                $db = "pwapoc";
+                                $conn = new mysqli($servername, $username, $pswrd, $db, '35467');
 
                                 if ($conn->connect_error) {
                                 die("Connection failed: " . $conn->connect_error);
                                 }
                                 $hash = password_hash($password, PASSWORD_DEFAULT);
                                 try {
-                                    $pdo = new PDO("mysql:host=localhost;dbname=logindb;charset=utf8", "root", "");
+                                    $pdo = new PDO("mysql:host=kp120977-001.eu.clouddb.ovh.net;dbname=pwapoc;charset=utf8", "pwapoc", "AAQWpFyDN85gL4d");
                                     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                                 } catch(PDOException $e) {
                                     echo "Connection failed: " . $e->getMessage();

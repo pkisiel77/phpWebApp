@@ -327,28 +327,35 @@ session_start();
                                 else{
                                     $token = bin2hex(random_bytes(24));
 
-                                    $servername = "localhost";
-                                    $username = "root";
-                                    $pswrd = "";
-                                    $db = "logindb";
-                                    $conn = new mysqli($servername, $username, $pswrd, $db);
+                                    $servername = "kp120977-001.eu.clouddb.ovh.net";
+                                    $username = "pwapoc";
+                                    $pswrd = "AAQWpFyDN85gL4d";
+                                    $db = "pwapoc";
+                                    $conn = new mysqli($servername, $username, $pswrd, $db, '35467');
         
                                     if ($conn->connect_error) {
                                     die("Connection failed: " . $conn->connect_error);
                                     }
-
+                                    try {
+                                        $pdo = new PDO("mysql:host=kp120977-001.eu.clouddb.ovh.net;dbname=pwapoc;charset=utf8", "pwapoc", "AAQWpFyDN85gL4d");
+                                        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                                    } catch(PDOException $e) {
+                                        echo "Connection failed: " . $e->getMessage();
+                                    }
 
                                     $emailcheck = "SELECT * from users where email = '$email'";
-                                    $result = mysqli_query($conn, $emailcheck);
-                                    $matchFound = mysqli_num_rows($result);
-                                    if(!$matchFound)
+                                    $result = $pdo->query($emailcheck);
+                                    if($result->rowCount() > 0)
                                     {
                                         echo "<small><p class='text-danger'>Taki email nie jest zarejestrowany.</p></small>";
                                     }
                                     else{
 
-                                        $tokenupdate = "UPDATE users SET token = '$token' WHERE email = '$email'";
-                                        if (mysqli_query($conn, $tokenupdate)) {
+                                        $tokenupdate = "UPDATE users SET token = :token WHERE email = :email";
+                                        $stmt = $pdo->prepare($tokenupdate);
+                                        $stmt->bindParam(':email', $email);
+                                        $stmt->bindParam(':token', $token);
+                                        if ($stmt->execute()) {
                                             
                                             $mail = new PHPMailer(true);
                                             try {

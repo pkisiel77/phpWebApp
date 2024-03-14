@@ -5,11 +5,11 @@ require 'jwt.php';
 require 'vendor/autoload.php';
 session_start();
     $jwt = $_SESSION['jwt'];
-    $servername = "localhost";
-    $username = "root";
-    $pswrd = "";
-    $db = "logindb";
-    $conn = new mysqli($servername, $username, $pswrd, $db);
+    $servername = "kp120977-001.eu.clouddb.ovh.net";
+    $username = "pwapoc";
+    $pswrd = "AAQWpFyDN85gL4d";
+    $db = "pwapoc";
+    $conn = new mysqli($servername, $username, $pswrd, $db, '35467');
 
     if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -71,7 +71,7 @@ session_start();
     <?php
 $jwt = $_SESSION['jwt'];
 $decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
-if($decoded->admin){
+if($decoded->admin==1){
     echo "<div class='sidebar-heading'>
         Interface
     </div>
@@ -350,7 +350,7 @@ if($decoded->admin){
                             Activity Log
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                        <a class="dropdown-item" href="logout.php">
                             <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                             Logout
                         </a>
@@ -371,14 +371,16 @@ if($decoded->admin){
                 <div class="card px-5 py-5">
                 <div class="mb-3">
                 <?php
-                $servername = "localhost";
-                $username = "root";
-                $pswrd = "";
-                $db = "logindb";
-                $conn = new mysqli($servername, $username, $pswrd, $db);
-            
-                if ($conn->connect_error) {
-                die("Connection failed: " . $conn->connect_error);
+                $servername = "kp120977-001.eu.clouddb.ovh.net";
+                $username = "pwapoc";
+                $pswrd = "AAQWpFyDN85gL4d";
+                $db = "pwapoc";
+                try {
+                    $dsn = "mysql:host=$servername;port=35467;dbname=$db";    
+                    $pdo = new PDO($dsn, $username, $pswrd);
+                    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                } catch(PDOException $e) {
+                    echo "Connection failed: " . $e->getMessage();     
                 }
                 $jwt = $_SESSION['jwt'];
                 $decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
@@ -398,23 +400,6 @@ if($decoded->admin){
                                     // Process the file contents as needed
                                     // For example, insert into database or perform other operations
                         
-                                    
-                                    try {
-                                        $pdo = new PDO("mysql:host=localhost;dbname=logindb;charset=utf8", "root", "");
-                                        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                                    } catch (PDOException $e) {
-                                        if ($e->getCode() == 2006) { // MySQL server has gone away
-                                            // Reconnect to the MySQL server
-                                            // Replace the following lines with your database connection code
-                                            $pdo = new PDO($dsn, $username, $password);
-                                            $stmt = $pdo->prepare($sql);
-                                            $stmt->execute($params);
-                                        } else {
-                                            throw $e; // Re-throw other PDO exceptions
-                                        }
-                                    }
-                
-
                                     $addavatar = "UPDATE users SET avatar = :avatar WHERE login = :login";
                                     $stmt = $pdo->prepare($addavatar);
                                     $stmt->bindParam(':login', $login);
@@ -431,8 +416,8 @@ if($decoded->admin){
                         }
                 
                 $avatarcheck = "SELECT avatar from users where login = '$login'";
-                $avatarresult = mysqli_query($conn, $avatarcheck);
-                $avatar = @mysqli_fetch_assoc($avatarresult);
+                $avatarresult = $pdo->query($avatarcheck);
+                $avatar = $avatarresult->fetch(PDO::FETCH_ASSOC);
                 if ($avatar && $avatar['avatar'] !== null) {
                     // 'avatar' column is not null, handle the result
                     // For example, display the avatar

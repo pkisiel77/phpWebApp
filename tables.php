@@ -1,24 +1,26 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$pswrd = "";
-$db = "logindb";
-$conn = new mysqli($servername, $username, $pswrd, $db);
+session_start();
+$servername = "kp120977-001.eu.clouddb.ovh.net";
+$username = "pwapoc";
+$pswrd = "AAQWpFyDN85gL4d";
+$db = "pwapoc";
+// $conn = new mysqli($servername, $username, $pswrd, $db, '35467');
 try {
-    $pdo = new PDO("mysql:host=localhost;dbname=logindb;charset=utf8", "root", "");
+    $dsn = "mysql:host=$servername;port=35467;dbname=$db";    
+    $pdo = new PDO($dsn, $username, $pswrd);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch(PDOException $e) {
     echo "Connection failed: " . $e->getMessage();
 }
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
+    // if ($conn->connect_error) {
+    //     die("Connection failed: " . $conn->connect_error);
+    // }
     if(isset($_POST['w'])){
     
     $rowlogin = $_POST['lgn']; 
     $logincheck = "SELECT * from users where login = '$rowlogin'";
-    $resultlog = mysqli_query($conn, $logincheck);
-    $fetchinfo = @mysqli_fetch_assoc($resultlog);
+    $resultlog = $pdo->query($logincheck);
+    $fetchinfo = $resultlog->fetch(PDO::FETCH_ASSOC);
     $status = $fetchinfo['status'];
 
     // Toggle the value of is_active
@@ -40,7 +42,7 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link
@@ -370,7 +372,7 @@ try {
                             Activity Log
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                        <a class="dropdown-item" href="logout.php">
                             <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                             Logout
                         </a>
@@ -391,15 +393,49 @@ try {
                 <div class="card px-5 py-5">
                  <div class="mb-3"> 
                  <?php
+                 $servername = "kp120977-001.eu.clouddb.ovh.net";
+                 $username = "pwapoc";
+                 $pswrd = "AAQWpFyDN85gL4d";
+                 $db = "pwapoc";
+                 // $conn = new mysqli($servername, $username, $pswrd, $db, '35467');
+                 try {
+                     $dsn = "mysql:host=$servername;port=35467;dbname=$db";    
+                     $pdo = new PDO($dsn, $username, $pswrd);
+                     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                 } catch(PDOException $e) {
+                     echo "Connection failed: " . $e->getMessage();
+                 }
+                    $current_page = @$_GET['page'];
+                    if ($current_page > 1) {
+                        $offset = ($current_page - 1) * 3;
+                    } else {
+                        $offset = 0;
+                    }
+                    $searchValue = isset($_GET['search']['value']) ? $_GET['search']['value'] : '';
 
-                    $getdata = "SELECT * from users";
-                    $result = mysqli_query($conn, $getdata);
+                    // Construct the WHERE clause for searching
+                    $whereClause = "";
+                    if (!empty($searchValue)) {
+                        $whereClause = "WHERE login LIKE '%$searchValue%' OR email LIKE '%$searchValue%' OR roleID LIKE '%$searchValue%' OR status LIKE '%$searchValue%'";
+}
+                    $sql = "SELECT * FROM users join user_roles on users.userID=user_roles.userID $whereClause limit 3 OFFSET $offset";
+                    $result = $pdo->query($sql);
+                    if (!$result) {
+                        die('Error in SQL query: ' . mysqli_error($conn));
+                    }
                     $data = array();
-                    if ($result->num_rows > 0) {
-                        while ($row = $result->fetch_assoc()) {
+                    if ($result->rowCount() > 0) {
+                        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                             $data[] = $row;
                         }
                     }
+                    $totalRecordsQuery = "SELECT COUNT(*) AS count FROM users";
+$totalRecordsStmt = $pdo->query($totalRecordsQuery);
+$totalRecords = $totalRecordsStmt->fetch(PDO::FETCH_ASSOC)['count'];
+
+// Calculate total pages
+$_SESSION['totalPages'] = ceil($totalRecords / 3);
+
                     ?>
                     
 <table id="tabledata" class="table table-striped" style="width:100%">
@@ -407,7 +443,7 @@ try {
         <tr>
             <th>Login</th>
             <th>Email</th>
-            <th>Admin</th>
+            <th>Role</th>
             <th>Status</th>
             <th>Change</th>
         </tr>
@@ -418,23 +454,81 @@ try {
             <tr>
                 <td><?php echo $row['login']; ?></td> 
                 <td><?php echo $row['email']; ?></td>
-                <td><?php echo $row['admin']; ?></td>
+                <td><?php echo $row['roleID']; ?></td>
                 <td><?php echo $row['status']; ?></td>
                 <td>
-                <form method="POST">
-                <input type="hidden" name="lgn" value="<?php echo $row['login']; ?>">
-                <input class="btn btn-dark btn-sm w-10" value="Toggle" type="submit" name="w">
-                </form>
+                <button type="button" name="wh" class="btn btn-primary change-button" data-toggle="modal" data-target="<?php echo "#modal".$row['userID']?>">Change</button>
                 </td>
             </tr>
             
-        <?php endforeach; ?>
+            <div class="modal fade" id="<?php echo "modal".$row['userID']?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Edit</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+                    <div class="mb-3 align-items-center">
+                    <form method="post" id="<?php echo "myForm".$row['userID']?>" class="row g-3">
+                    <?php
+               
 
+                    echo"
+                        <div class='mb-3'>
+                        <label for='email' class='form-label'>E-mail</label>
+                        <input type='email' class='form-control' id='email' name='email".$row['userID']."' maxlength='30'  value='".$row['email']."' required></input>";
+                        
+                        if(isset($_POST['ws'])){
+                            $email = $_POST['email'.$row['userID']];
+                            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                                echo"<small><p class='text-danger'> Invalid e-mail format.</p></small>";
+                            }
+                        }
+                       echo"
+                     </div>
+
+                    <div class='mb-3'>
+                        <label for='login' class='form-label'>Login</label>
+                        <input type='text' class='form-control' id='login' name='login".$row['userID']."' maxlength='30' value='".$row['login']."' required></input>
+                     </div>
+
+                    <div class='mb-3'>
+                        <label for='role' class='form-label'>Role</label>
+                        <input type='number' min='0' class='form-control' id='role' name='role".$row['userID']."' maxlength='1' value='".$row['roleID']."' required></input>
+                     </div>
+
+                     <div class='mb-3'>
+                     <label for='status' class='form-label'>Status</label>
+                     <input type='number' max='1' min='0' class='form-control' id='status' name='status".$row['userID']."' maxlength='1' value='".$row['status']."' required></input>
+                  </div>
+                    </div>";
+                        ?>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+        <input type="hidden" name="lgn" value="<?php echo $row['userID']; ?>">
+        <button type="submit" form="<?php echo "myForm".$row['userID']?>" class="btn btn-primary" value="Save Changes" name="ws">Save Changes</button>
         
+      </div>
+    </div>
+  </div>
+</div>
+</form>         
+
+        <?php endforeach; ?>
     </tbody>
 </table>
+<?php
+echo "Pages: ";
+for ($i = 1; $i <= $_SESSION['totalPages']; $i++) {
+    echo "<a href='?page=$i'>$i</a> ";
+}
 
-
+?>
 
                  </div>
                 </div>
@@ -445,6 +539,43 @@ try {
 
         </div>
         <!-- /.container-fluid -->
+
+
+<?php
+$servername = "kp120977-001.eu.clouddb.ovh.net";
+$username = "pwapoc";
+$pswrd = "AAQWpFyDN85gL4d";
+$db = "pwapoc";
+// $conn = new mysqli($servername, $username, $pswrd, $db, '35467');
+try {
+    $dsn = "mysql:host=$servername;port=35467;dbname=$db";    
+    $pdo = new PDO($dsn, $username, $pswrd);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    echo "Connection failed: " . $e->getMessage();
+}
+    // if ($conn->connect_error) {
+    //     die("Connection failed: " . $conn->connect_error);
+    // }
+    if(isset($_POST['ws'])){
+    $ID = $_POST['lgn']; 
+    $newlogin = $_POST['login'.$ID];
+    $newemail = $_POST['email'.$ID];
+    $newrole = $_POST['role'.$ID];
+    $newstatus = $_POST['status'.$ID];
+    $update_sql = "UPDATE users JOIN user_roles ON users.userID = user_roles.userID SET users.login = :newlogin, users.email = :newemail, users.status = :newstatus, user_roles.roleID = :newrole WHERE users.userID = :ID";
+    $stmt = $pdo->prepare($update_sql);
+    $stmt->bindParam(':newlogin', $newlogin);
+    $stmt->bindParam(':newemail', $newemail);
+    $stmt->bindParam(':newstatus', $newstatus);
+    $stmt->bindParam(':newrole', $newrole);
+    $stmt->bindParam(':ID', $ID);
+    $stmt->execute();
+    echo"<script>window.location.href = '".$_SERVER['PHP_SELF']."'</script>";
+    }
+?>
+
+
 
     </div>
     <!-- End of Main Content -->
@@ -469,20 +600,57 @@ try {
     <script src="js/sb-admin-2.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
-    $(document).ready(function() {
-        $('#tabledata').DataTable({
+$(document).ready(function() {
+    var table = $('#tabledata').DataTable({
         paging: true, // Enable paging
         pageLength: 3,
         lengthChange: false,
         "language": {
-                    "paginate": {
-                        "previous": "<i class='fas fa-angle-double-left'></i>",
-                        "next": "<i class='fas fa-angle-double-right'></i>"
-                    }
-                }
-        }); 
+            "paginate": {
+                "previous": "<i class='fas fa-angle-double-left' id='previous'></i>",
+                "next": "<i class='fas fa-angle-double-right' id='next'></i>"
+            }
+        }
     });
 
-        
+    // Function to update URL with current page
+    function updateURLWithPage() {
+        var currentPage = table.page();
+        var currentURL = window.location.href;
+
+        // Check if the URL already contains ?page=
+        if (currentURL.indexOf('?page=') === -1) {
+            // Append the current page as a query parameter
+            currentURL += (currentURL.indexOf('?') !== -1 ? '&' : '?') + 'page=' + currentPage;
+        } else {
+            // Update the value of page parameter
+            currentURL = currentURL.replace(/(page=)[^\&]+/, '$1' + currentPage);
+        }
+
+        // Redirect to the updated URL
+        window.history.replaceState({}, document.title, currentURL);
+    }
+
+    // Initial update
+    updateURLWithPage();
+
+    // Listen for the draw event on the DataTable
+    table.on('draw.dt', function() {
+        updateURLWithPage();
+    });
+        // Update URL when next button is clicked
+        $('#next').on('click', function () {
+        table.page('next').draw(false);
+    });
+
+    // Update URL when previous button is clicked
+    $('#previous').on('click', function () {
+        table.page('previous').draw(false);
+    });
+});
 </script>
+</body>
