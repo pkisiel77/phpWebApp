@@ -411,14 +411,11 @@ try {
                     } else {
                         $offset = 0;
                     }
-                    $searchValue = isset($_GET['search']['value']) ? $_GET['search']['value'] : '';
+                    error_reporting(E_ALL);
+ini_set('display_errors', 1);
+var_dump($_POST);             
 
-                    // Construct the WHERE clause for searching
-                    $whereClause = "";
-                    if (!empty($searchValue)) {
-                        $whereClause = "WHERE login LIKE '%$searchValue%' OR email LIKE '%$searchValue%' OR roleID LIKE '%$searchValue%' OR status LIKE '%$searchValue%'";
-}
-                    $sql = "SELECT * FROM users join user_roles on users.userID=user_roles.userID $whereClause limit 3 OFFSET $offset";
+                    $sql = "SELECT * FROM users join user_roles on users.userID=user_roles.userID limit 3 OFFSET $offset";
                     $result = $pdo->query($sql);
                     if (!$result) {
                         die('Error in SQL query: ' . mysqli_error($conn));
@@ -437,7 +434,7 @@ $totalRecords = $totalRecordsStmt->fetch(PDO::FETCH_ASSOC)['count'];
 $_SESSION['totalPages'] = ceil($totalRecords / 3);
 
                     ?>
-                    
+               <p id="searchResults"></p>     
 <table id="tabledata" class="table table-striped" style="width:100%">
     <thead>
         <tr>
@@ -588,21 +585,10 @@ try {
 <!-- End of Content Wrapper -->
 
 </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <!-- Bootstrap core JavaScript-->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Core plugin JavaScript-->
-    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-
-    <!-- Custom scripts for all pages-->
-    <script src="js/sb-admin-2.min.js"></script>
-
+<!-- Load Bootstrap 5 JS bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
 $(document).ready(function() {
     var table = $('#tabledata').DataTable({
@@ -616,6 +602,20 @@ $(document).ready(function() {
             }
         }
     });
+
+    // Listen for the search event on the DataTable
+    table.on('search.dt', function() {
+        var searchTerm = table.search(); // Get the search term
+        $.ajax({
+            url: 'ajaxTEST.php',
+            type: 'POST',
+            data: { searchTerm: searchTerm }, // Send the search term as data
+            success: function(response) {
+                        $('#searchResults').text(response); // Update the HTML with search results
+                    }
+        });
+    });
+
 
     // Function to update URL with current page
     function updateURLWithPage() {
