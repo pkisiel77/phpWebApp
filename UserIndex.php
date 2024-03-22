@@ -4,6 +4,8 @@ use Firebase\JWT\Key;
 require 'jwt.php';
 require 'vendor/autoload.php';
 session_start();
+include 'bg.php';
+$translations = loadTranslations($_SESSION['language']);
     $jwt = $_SESSION['jwt'];
     $servername = "kp120977-001.eu.clouddb.ovh.net";
     $username = "pwapoc";
@@ -62,7 +64,7 @@ session_start();
     <li class="nav-item">
         <a class="nav-link" href="test.php">
             <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Dashboard</span></a>
+            <span><?= $translations['dashboard']?></span></a>
     </li>
 
     <!-- Divider -->
@@ -74,7 +76,7 @@ $jwt = $_SESSION['jwt'];
 $decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
 if($decoded->admin==1){
     echo "<div class='sidebar-heading'>
-        Interface
+        ".$translations['interface']."
     </div>
 
     <!-- Nav Item - Pages Collapse Menu -->
@@ -82,7 +84,7 @@ if($decoded->admin==1){
         <a class='nav-link collapsed' href='#' data-toggle='collapse' data-target='#collapseTwo'
             aria-expanded='true' aria-controls='collapseTwo'>
             <i class='fas fa-fw fa-cog'></i>
-            <span>Components</span>
+            <span>".$translations['components']."</span>
         </a>
         <div id='collapseTwo' class='collapse' aria-labelledby='headingTwo' data-parent='#accordionSidebar'>
             <div class='bg-white py-2 collapse-inner rounded'>
@@ -98,7 +100,7 @@ if($decoded->admin==1){
         <a class='nav-link collapsed' href='#' data-toggle='collapse' data-target='#collapseUtilities'
             aria-expanded='true' aria-controls='collapseUtilities'>
             <i class='fas fa-fw fa-wrench'></i>
-            <span>Utilities</span>
+            <span>".$translations['utilities']."</span>
         </a>
         <div id='collapseUtilities' class='collapse' aria-labelledby='headingUtilities'
             data-parent='#accordionSidebar'>
@@ -117,7 +119,7 @@ if($decoded->admin==1){
 
     <!-- Heading -->
     <div class='sidebar-heading'>
-        Addons
+        ".$translations['addons']."
     </div>
 
 
@@ -125,12 +127,12 @@ if($decoded->admin==1){
     <li class='nav-item'>
         <a class='nav-link' href='charts.html'>
             <i class='fas fa-fw fa-chart-area'></i>
-            <span>Charts</span></a>
+            <span>".$translations['charts']."</span></a>
     </li>
     <li class='nav-item'>
     <a class='nav-link' href='tables.php'>
         <i class='fas fa-fw fa-table'></i>
-        <span>Tables</span></a>
+        <span>".$translations['tables']."</span></a>
     </li>
 
 
@@ -142,7 +144,7 @@ if($decoded->admin==1){
     <li class='nav-item'>
         <a class='nav-link' href='logout.php'>
             <i class='bi bi-box-arrow-left'></i>
-            <span>Logout</span></a>
+            <span><?= $translations['logout']?></span></a>
     </li>
         <!-- Divider -->
         <hr class='sidebar-divider d-none d-md-block'>
@@ -158,7 +160,7 @@ if($decoded->admin==1){
     <!-- Main Content -->
     <div id="content">
 
-        <!-- Topbar -->
+       <!-- Topbar -->
         <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
             <!-- Sidebar Toggle (Topbar) -->
@@ -170,7 +172,7 @@ if($decoded->admin==1){
             <form
                 class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
                 <div class="input-group">
-                    <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
+                    <input type="text" class="form-control bg-light border-0 small" placeholder="<?= $translations['search']?>"
                         aria-label="Search" aria-describedby="basic-addon2">
                     <div class="input-group-append">
                         <button class="btn btn-primary" type="button">
@@ -195,7 +197,7 @@ if($decoded->admin==1){
                         <form class="form-inline mr-auto w-100 navbar-search">
                             <div class="input-group">
                                 <input type="text" class="form-control bg-light border-0 small"
-                                    placeholder="Search for..." aria-label="Search"
+                                    placeholder="<?= $translations['search']?>" aria-label="Search"
                                     aria-describedby="basic-addon2">
                                 <div class="input-group-append">
                                     <button class="btn btn-primary" type="button">
@@ -206,7 +208,25 @@ if($decoded->admin==1){
                         </form>
                     </div>
                 </li>
+                <div class="container">
+  <div class="dropdown">
+        <button class="btn btn-primary btn-sm dropdown-toggle mr-n4" type="button" id="languageDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fas fa-globe"></i>
+        </button>
+    <div class="dropdown-menu" aria-labelledby="languageDropdown">
+    <form method="post">
+        <button type="submit" name="language" value="en" class="btn-sm btn-secondary">English</button>
+        <button type="submit" name="language" value="pl" class="btn-sm btn-secondary">Polski</button>
+    </form>
+    </div>
+  </div>
+</div>
+<?php
+if(isset($_POST['language'])){
+    $_SESSION['language'] = $_POST['language'];
+    echo"<script>window.location.href = '".$_SERVER['PHP_SELF']."'</script>";}
 
+?>
                 <!-- Nav Item - Alerts -->
                 <li class="nav-item dropdown no-arrow mx-1">
                     <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
@@ -339,20 +359,20 @@ if($decoded->admin==1){
                         aria-labelledby="userDropdown">
                         <a class="dropdown-item" href="profile.php">
                             <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                            Profile
+                            <?= $translations['profile']?>
                         </a>
                         <a class="dropdown-item" href="#">
                             <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                            Settings
+                            <?= $translations['settings']?>
                         </a>
                         <a class="dropdown-item" href="#">
                             <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                            Activity Log
+                            <?= $translations['activity_log']?>
                         </a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="logout.php">
                             <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                            Logout
+                            <?= $translations['logout']?>
                         </a>
                     </div>
                 </li>
@@ -373,7 +393,7 @@ if($decoded->admin==1){
                  <?php
                     $jwt = $_SESSION['jwt'];
                     $decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
-                    echo "<h3>Welcome ".$decoded->username."</h3>";
+                    echo "<h3>".$translations['welcome']." ".$decoded->username."</h3>";
                 ?>
 
                  </div>

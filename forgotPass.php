@@ -304,7 +304,7 @@ session_start();
                 <div class="card px-5 py-5 ">
                     <form method="post">
                     <div class="mb-3 align-items-center">
-                        <h3>Forgot password</h3>
+                        <h3 class="text-success">Forgot password</h3>
                         <div class="mb-3">
                             <label for="email" class="form-label">E-mail</label>
                             <input type="email" class="form-control" id="email" name="email" maxlength="30" required></input>

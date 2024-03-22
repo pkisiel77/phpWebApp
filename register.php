@@ -1,14 +1,14 @@
 <?php
 //Import PHPMailer classes into the global namespace
 //These must be at the top of your script, not inside a function
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
-use PHPMailer\PHPMailer\Exception;
+
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 //Load Composer's autoloader
 require 'vendor/autoload.php';
 session_start();
+include 'bg.php';
+$translations = loadTranslations($_SESSION['language']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -48,11 +48,11 @@ session_start();
     <li class="nav-item">
         <a class="nav-link" href="MainPage.php">
             <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Dashboard</span></a>
+            <span><?= $translations['dashboard']?></span></a>
     </li>
 
     <div class="sidebar-heading">
-        Addons
+        <?= $translations['addons']?>
     </div>
 
     <!-- Nav Item - Pages Collapse Menu -->
@@ -60,15 +60,15 @@ session_start();
         <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePages" aria-expanded="true"
             aria-controls="collapsePages">
             <i class="fas fa-fw fa-folder"></i>
-            <span>Pages</span>
+            <span><?= $translations['pages']?></span>
         </a>
         <div id="collapsePages" class="collapse show" aria-labelledby="headingPages"
             data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">Login Screens:</h6>
-                <a class="collapse-item" href="login.php">Login</a>
-                <a class="collapse-item" href="register.php">Register</a>
-                <a class="collapse-item" href="forgotPass.php">Forgot Password</a>
+                <h6 class="collapse-header"><?= $translations['login_screens']?>:</h6>
+                <a class="collapse-item" href="login.php"><?= $translations['login']?></a>
+                <a class="collapse-item" href="register.php"><?= $translations['register']?></a>
+                <a class="collapse-item" href="forgotPass.php"><?= $translations['forgot_password']?></a>
             </div>
         </div>
     </li>
@@ -104,7 +104,7 @@ session_start();
             <form
                 class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
                 <div class="input-group">
-                    <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
+                    <input type="text" class="form-control bg-light border-0 small" placeholder="<?= $translations['search']?>"
                         aria-label="Search" aria-describedby="basic-addon2">
                     <div class="input-group-append">
                         <button class="btn btn-primary" type="button">
@@ -129,7 +129,7 @@ session_start();
                         <form class="form-inline mr-auto w-100 navbar-search">
                             <div class="input-group">
                                 <input type="text" class="form-control bg-light border-0 small"
-                                    placeholder="Search for..." aria-label="Search"
+                                    placeholder="<?= $translations['search']?>" aria-label="Search"
                                     aria-describedby="basic-addon2">
                                 <div class="input-group-append">
                                     <button class="btn btn-primary" type="button">
@@ -140,7 +140,25 @@ session_start();
                         </form>
                     </div>
                 </li>
+                <div class="container">
+  <div class="dropdown">
+        <button class="btn btn-primary btn-sm dropdown-toggle mr-n4" type="button" id="languageDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fas fa-globe"></i>
+        </button>
+    <div class="dropdown-menu" aria-labelledby="languageDropdown">
+    <form method="post">
+        <button type="submit" name="language" value="en" class="btn-sm btn-secondary">English</button>
+        <button type="submit" name="language" value="pl" class="btn-sm btn-secondary">Polski</button>
+    </form>
+    </div>
+  </div>
+</div>
+<?php
+if(isset($_POST['language'])){
+    $_SESSION['language'] = $_POST['language'];
+    echo"<script>window.location.href = '".$_SERVER['PHP_SELF']."'</script>";}
 
+?>
                 <!-- Nav Item - Alerts -->
                 <li class="nav-item dropdown no-arrow mx-1">
                     <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
@@ -273,20 +291,20 @@ session_start();
                         aria-labelledby="userDropdown">
                         <a class="dropdown-item" href="#">
                             <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                            Profile
+                            <?= $translations['profile']?>
                         </a>
                         <a class="dropdown-item" href="#">
                             <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                            Settings
+                            <?= $translations['settings']?>
                         </a>
                         <a class="dropdown-item" href="#">
                             <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                            Activity Log
+                            <?= $translations['activity_log']?>
                         </a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
                             <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                            Logout
+                            <?= $translations['logout']?>
                         </a>
                     </div>
                 </li>
@@ -306,7 +324,7 @@ session_start();
                 <div class="card px-5 py-5 ">
                     <form method="post" class="row g-3">
                     <div class="mb-3 align-items-center">
-                        <h3>Zarejsetruj się</h3>
+                        <h3 class="text-success"><?= $translations['register']?></h3>
                         <div class="mb-3">
                             <label for="email" class="form-label">E-mail</label>
                             <input type="email" class="form-control" id="email" name="email" maxlength="30" required></input>
@@ -326,7 +344,7 @@ session_start();
                          </div>
 
                         <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
+                            <label for="password" class="form-label"><?= $translations['password']?></label>
                             <input type="password" class="form-control form-control-lg" id="password" name="password" maxlength="30" required></input> 
                         <?php
                             if(isset($_POST['w'])){
@@ -338,15 +356,15 @@ session_start();
                                 $specialChars = preg_match('@[^\w]@', $password);
                                 
                                 if(strlen($password) < 8 || !$number || !$uppercase || !$lowercase || !$specialChars) {
-                                echo "<small><p class='text-danger'> Password must be at least 8 characters, have uppercase and lowercase letters, a number and a special symbol.</p></small>";
+                                echo "<small><p class='text-danger'>".$translations['password_length']."</p></small>";
                                 }
                                 
                             }
                         ?>
                         </div>
 
-                        <div class="mb-3"><input class="btn btn-dark w-100" type="submit" name="w"></input> </div>
-                        <small><a class="text-primary" href="forgotpass.php">Przypomnij hasło</a></small>
+                        <div class="mb-3"><input class="btn btn-dark w-100" value="<?= $translations['submit']?>" type="submit" name="w"></input> </div>
+                        <small><a class="text-primary" href="forgotpass.php"><?= $translations['forgot_password']?></a></small>
                         <?php
                         if(isset($_POST['w'])){
                             $login = @$_POST['login'];
@@ -364,30 +382,27 @@ session_start();
 
                                 
 
+                                $hash = password_hash($password, PASSWORD_DEFAULT);
                                 $servername = "kp120977-001.eu.clouddb.ovh.net";
                                 $username = "pwapoc";
                                 $pswrd = "AAQWpFyDN85gL4d";
                                 $db = "pwapoc";
-                                $conn = new mysqli($servername, $username, $pswrd, $db, '35467');
-
-                                if ($conn->connect_error) {
-                                die("Connection failed: " . $conn->connect_error);
-                                }
-                                $hash = password_hash($password, PASSWORD_DEFAULT);
+                                // $conn = new mysqli($servername, $username, $pswrd, $db, '35467');
                                 try {
-                                    $pdo = new PDO("mysql:host=kp120977-001.eu.clouddb.ovh.net;dbname=pwapoc;charset=utf8", "pwapoc", "AAQWpFyDN85gL4d");
+                                    $dsn = "mysql:host=$servername;port=35467;dbname=$db";    
+                                    $pdo = new PDO($dsn, $username, $pswrd);
                                     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                                 } catch(PDOException $e) {
                                     echo "Connection failed: " . $e->getMessage();
                                 }
-                                $registerDB = "INSERT INTO Users (email, login, passHash) VALUES (:email, :login, :hash)";
+                                $registerDB = "INSERT INTO users (email, login, passHash) VALUES (:email, :login, :hash)";
                                 $stmt = $pdo->prepare($registerDB);
                                 $stmt->bindParam(':email', $email);
                                 $stmt->bindParam(':login', $login);
                                 $stmt->bindParam(':hash', $hash);
                                 if ($stmt->execute()) {
-                                    echo "<h3 class='text-success'>Zarejestrowano!</h3>";
-                                    $conn->close();
+                                    echo "<h3 class='text-success'>".$translations['registered']."</h3>";
+                                    $pdo = null;
                                 }
                         }
                         }

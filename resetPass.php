@@ -320,7 +320,7 @@ session_start();
                 <div class="card px-5 py-5 ">
                     <form method="post">
                     <div class="mb-3 align-items-center">
-                        <h3>Zresetuj hasło</h3>
+                        <h3 class="text-success">Zresetuj hasło</h3>
                         <div class="mb-3">
                             <label for="password" class="form-label">New password</label>
                             <input type="password" class="form-control form-control-lg" id="password" name="password" maxlength="30" required></input> 

@@ -1,5 +1,7 @@
 <?php
 session_start();
+include 'bg.php';
+$translations = loadTranslations($_SESSION['language']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -37,13 +39,23 @@ session_start();
 
     <!-- Nav Item - Dashboard -->
     <li class="nav-item">
+        <a class="nav-link" href="test.php">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span><?= $translations['dashboard']?></span></a>
+    </li>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider">
+
+    <!-- Nav Item - Dashboard -->
+    <li class="nav-item">
         <a class="nav-link" href="MainPage.php">
             <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Dashboard</span></a>
+            <span><?= $translations['dashboard']?></span></a>
     </li>
 
     <div class="sidebar-heading">
-        Addons
+    <?= $translations['addons']?>
     </div>
 
     <!-- Nav Item - Pages Collapse Menu -->
@@ -51,15 +63,15 @@ session_start();
         <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePages" aria-expanded="true"
             aria-controls="collapsePages">
             <i class="fas fa-fw fa-folder"></i>
-            <span>Pages</span>
+            <span><?= $translations['pages']?></span>
         </a>
         <div id="collapsePages" class="collapse show" aria-labelledby="headingPages"
             data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">Login Screens:</h6>
-                <a class="collapse-item" href="login.php">Login</a>
-                <a class="collapse-item" href="register.php">Register</a>
-                <a class="collapse-item" href="forgotPass.php">Forgot Password</a>
+                <h6 class="collapse-header"><?= $translations['login_screens']?>:</h6>
+                <a class="collapse-item" href="login.php"><?= $translations['login']?></a>
+                <a class="collapse-item" href="register.php"><?= $translations['register']?></a>
+                <a class="collapse-item" href="forgotPass.php"><?= $translations['forgot_password']?></a>
             </div>
         </div>
     </li>
@@ -95,7 +107,7 @@ session_start();
             <form
                 class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
                 <div class="input-group">
-                    <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
+                    <input type="text" class="form-control bg-light border-0 small" placeholder="<?= $translations['search']?>"
                         aria-label="Search" aria-describedby="basic-addon2">
                     <div class="input-group-append">
                         <button class="btn btn-primary" type="button">
@@ -120,7 +132,7 @@ session_start();
                         <form class="form-inline mr-auto w-100 navbar-search">
                             <div class="input-group">
                                 <input type="text" class="form-control bg-light border-0 small"
-                                    placeholder="Search for..." aria-label="Search"
+                                    placeholder="<?= $translations['search']?>" aria-label="Search"
                                     aria-describedby="basic-addon2">
                                 <div class="input-group-append">
                                     <button class="btn btn-primary" type="button">
@@ -131,7 +143,25 @@ session_start();
                         </form>
                     </div>
                 </li>
+                <div class="container">
+  <div class="dropdown">
+        <button class="btn btn-primary btn-sm dropdown-toggle mr-n4" type="button" id="languageDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fas fa-globe"></i>
+        </button>
+    <div class="dropdown-menu" aria-labelledby="languageDropdown">
+    <form method="post">
+        <button type="submit" name="language" value="en" class="btn-sm btn-secondary">English</button>
+        <button type="submit" name="language" value="pl" class="btn-sm btn-secondary">Polski</button>
+    </form>
+    </div>
+  </div>
+</div>
+<?php
+if(isset($_POST['language'])){
+    $_SESSION['language'] = $_POST['language'];
+    echo"<script>window.location.href = '".$_SERVER['PHP_SELF']."'</script>";}
 
+?>
                 <!-- Nav Item - Alerts -->
                 <li class="nav-item dropdown no-arrow mx-1">
                     <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
@@ -264,20 +294,20 @@ session_start();
                         aria-labelledby="userDropdown">
                         <a class="dropdown-item" href="#">
                             <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                            Profile
+                            <?= $translations['profile']?>
                         </a>
                         <a class="dropdown-item" href="#">
                             <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                            Settings
+                            <?= $translations['settings']?>
                         </a>
                         <a class="dropdown-item" href="#">
                             <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                            Activity Log
+                            <?= $translations['activity_log']?>
                         </a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
                             <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                            Logout
+                            <?= $translations['logout']?>
                         </a>
                     </div>
                 </li>
@@ -296,18 +326,18 @@ session_start();
                 <div class="card px-5 py-5 ">
                     <form method="post">
                     <div class="mb-3 align-items-center">
-                        <h3>Zaloguj się</h3>
+                        <h3 class="text-success"><?= $translations['login']?></h3>
                         <div class="mb-3">
                             <label for="login" class="form-label">Login</label>
                             <input type="text" class="form-control" id="login" name="login" maxlength="30" required></input>
                          </div>
 
                         <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
+                            <label for="password" class="form-label"><?= $translations['password']?></label>
                             <input type="password" class="form-control form-control-lg" id="password" name="password" maxlength="30" required></input> 
                         </div>
 
-                        <div class="mb-3"><input class="btn btn-dark w-100" type="submit" name="w"></input> 
+                        <div class="mb-3"><input class="btn btn-dark w-100" value="<?= $translations['submit']?>" type="submit" name="w"></input> 
 
                         <?php
                             use Firebase\JWT\JWT;
@@ -332,17 +362,19 @@ session_start();
                                 $logincheck = "SELECT * from users join user_roles on users.UserID=user_roles.userID where login = '$login'";
                                 $resultlog = $pdo->query($logincheck);
                                 $fetchinfo = $resultlog->fetch(PDO::FETCH_ASSOC);
-                                $hash = $fetchinfo['passHash'];
-                                $email = $fetchinfo['email'];
-                                $admin = $fetchinfo['roleID'];
 
 
-                                $matchFound = $resultlog->rowCount();
-                                if($matchFound == 0)
-                                {
-                                    echo "<small><p class='text-danger'>This account does not exist.</p></small>";
-                                } 
-                                else{
+                                if (!$fetchinfo) {
+                                    // Handle the case where no matching record was found
+                                    echo "<small><p class='text-danger'>".$translations['this_account_does_not_exist']."</p></small>";
+                                } else {
+
+                                    $hash = $fetchinfo['passHash'];
+                                    $email = $fetchinfo['email'];
+                                    $admin = $fetchinfo['roleID'];
+                                    // Further processing
+                                
+
                                     if (password_verify($password, $hash)) {
                                         $payload = array(
                                             'role' => $admin,
@@ -363,17 +395,18 @@ session_start();
                                             $_SESSION['jwt'] = $jwt;
                                         }
                                     } else {
-                                        echo "<small><p class='text-danger'>Invalid password.</p></small>";;
+                                        echo "<small><p class='text-danger'>".$translations['invalid_password']."</p></small>";;
                                     }
                                 }
                            }
+                        
                             ?>
 
                         </div>
 
 
                     <div class="row mb-1">
-                        <small>Nie masz konta? <a class="text-danger " href="register.php">Zarejsetruj się</a></small>
+                        <small><?= $translations['dont_have_an_account']?> <a class="text-danger " href="register.php"><?= $translations['register']?></a></small>
                     </div>
                     </div>
                     </form>
