@@ -22,9 +22,13 @@ return [
     'interface' => 'Interfejs',
     'components' => 'Elementy',
     'utilities' => 'Narzędzia',
-    'charts' => 'Wykresy',
+    'permissions' => 'Uprawnienia',
     'tables' => 'Tabele',
     'submit' => 'Wyślij',
-
+    'enable_2fa' => 'Włącz 2fa',
+    'disable_2fa' => 'Wyłącz 2fa',
+    'scan_qr' => 'Zeskanuj poniższy kod aplikacją autoryzującą i wpisz kod:',
+    'invalid_code' => 'Niepoprawny kod',
+    'enter_code' => 'Podaj kod z aplikacji uwietrzylniającej',
 ];
 ?>

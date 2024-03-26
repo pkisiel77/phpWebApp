@@ -22,11 +22,14 @@ return [
     'interface' => 'Interface',
     'components' => 'Components',
     'utilities' => 'Utilites',
-    'charts' => 'Charts',
+    'permissions' => 'Permissions',
     'tables' => 'Tables',
-    'submit' => 'Submit'
-
-
+    'submit' => 'Submit',
+    'enable_2fa' => 'Enable 2fa',
+    'disable_2fa' => 'Disable 2fa',
+    'scan_qr' => 'Scan the QR code below with your authenticator app and enter the code:',
+    'invalid_code' => 'Invalid code',
+    'enter_code' => 'Enter code from your authentication app',
 
 
 ];

@@ -1,31 +1,13 @@
 <?php
+use OTPHP\TOTP;
+session_start();
+include 'bg.php';   
+require 'vendor/autoload.php';
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 require 'jwt.php';
-require 'vendor/autoload.php';
-session_start();
-include 'bg.php';
 $translations = loadTranslations($_SESSION['language']);
-    $jwt = $_SESSION['jwt'];
-    $servername = "kp120977-001.eu.clouddb.ovh.net";
-    $username = "pwapoc";
-    $pswrd = "AAQWpFyDN85gL4d";
-    $db = "pwapoc";
-    $conn = new mysqli($servername, $username, $pswrd, $db, '35467');
-
-    if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-    }
-    $tokencheck = "SELECT * from users where jwtToken = '$jwt'";
-    $result = mysqli_query($conn, $tokencheck);
-    $matchFound = mysqli_num_rows($result);
-    if(!$matchFound)
-    {
-        header("Location: MainPage.php");
-        $conn->close();
-    }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -70,97 +52,55 @@ $translations = loadTranslations($_SESSION['language']);
     <!-- Divider -->
     <hr class="sidebar-divider">
 
-    <!-- Heading -->
-<?php
-$jwt = $_SESSION['jwt'];
-$decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
-if($decoded->admin==1){
-    echo "<div class='sidebar-heading'>
-        ".$translations['interface']."
+    <!-- Nav Item - Dashboard -->
+    <li class="nav-item">
+        <a class="nav-link" href="MainPage.php">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span><?= $translations['dashboard']?></span></a>
+    </li>
+
+    <div class="sidebar-heading">
+    <?= $translations['addons']?>
     </div>
 
     <!-- Nav Item - Pages Collapse Menu -->
-    <li class='nav-item'>
-        <a class='nav-link collapsed' href='#' data-toggle='collapse' data-target='#collapseTwo'
-            aria-expanded='true' aria-controls='collapseTwo'>
-            <i class='fas fa-fw fa-cog'></i>
-            <span>".$translations['components']."</span>
+    <li class="nav-item active">
+        <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePages" aria-expanded="true"
+            aria-controls="collapsePages">
+            <i class="fas fa-fw fa-folder"></i>
+            <span><?= $translations['pages']?></span>
         </a>
-        <div id='collapseTwo' class='collapse' aria-labelledby='headingTwo' data-parent='#accordionSidebar'>
-            <div class='bg-white py-2 collapse-inner rounded'>
-                <h6 class='collapse-header'>Custom Components:</h6>
-                <a class='collapse-item' href='buttons.html'>Buttons</a>
-                <a class='collapse-item' href='cards.html'>Cards</a>
+        <div id="collapsePages" class="collapse show" aria-labelledby="headingPages"
+            data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header"><?= $translations['login_screens']?>:</h6>
+                <a class="collapse-item" href="login.php"><?= $translations['login']?></a>
+                <a class="collapse-item" href="register.php"><?= $translations['register']?></a>
+                <a class="collapse-item" href="forgotPass.php"><?= $translations['forgot_password']?></a>
             </div>
         </div>
     </li>
 
-    <!-- Nav Item - Utilities Collapse Menu -->
-    <li class='nav-item'>
-        <a class='nav-link collapsed' href='#' data-toggle='collapse' data-target='#collapseUtilities'
-            aria-expanded='true' aria-controls='collapseUtilities'>
-            <i class='fas fa-fw fa-wrench'></i>
-            <span>".$translations['utilities']."</span>
-        </a>
-        <div id='collapseUtilities' class='collapse' aria-labelledby='headingUtilities'
-            data-parent='#accordionSidebar'>
-            <div class='bg-white py-2 collapse-inner rounded'>
-                <h6 class='collapse-header'>Custom Utilities:</h6>
-                <a class='collapse-item' href='utilities-color.html'>Colors</a>
-                <a class='collapse-item' href='utilities-border.html'>Borders</a>
-                <a class='collapse-item' href='utilities-animation.html'>Animations</a>
-                <a class='collapse-item' href='utilities-other.html'>Other</a>
-            </div>
-        </div>
-    </li>
+
 
     <!-- Divider -->
-    <hr class='sidebar-divider'>
+    <hr class="sidebar-divider d-none d-md-block">
 
-    <!-- Heading -->
-    <div class='sidebar-heading'>
-        ".$translations['addons']."
+    <!-- Sidebar Toggler (Sidebar) -->
+    <div class="text-center d-none d-md-inline">
+        <button class="rounded-circle border-0" id="sidebarToggle"></button>
     </div>
 
-
-    <!-- Nav Item - Charts -->
-    <li class='nav-item'>
-        <a class='nav-link' href='perms.html'>
-            <i class='fas fa-fw fa-chart-area'></i>
-            <span>".$translations['permissions']."</span></a>
-    </li>
-    <li class='nav-item'>
-    <a class='nav-link' href='tables.php'>
-        <i class='fas fa-fw fa-table'></i>
-        <span>".$translations['tables']."</span></a>
-    </li>
-
-
-
-<!-- End of Sidebar -->";
-}
-?>
-    <!-- Nav Item - logout -->
-    <li class='nav-item'>
-        <a class='nav-link' href='logout.php'>
-            <i class='bi bi-box-arrow-left'></i>
-            <span><?= $translations['logout']?></span></a>
-    </li>
-        <!-- Divider -->
-        <hr class='sidebar-divider d-none d-md-block'>
-
-<!-- Sidebar Toggler (Sidebar) -->
-    <div class='text-center d-none d-md-inline'>
-        <button class='rounded-circle border-0' id='sidebarToggle'></button>
-    </div>
 </ul>
+<!-- End of Sidebar -->
+
 <!-- Content Wrapper -->
 <div id="content-wrapper" class="d-flex flex-column">
 
     <!-- Main Content -->
     <div id="content">
 
-       <!-- Topbar -->
+        <!-- Topbar -->
         <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
             <!-- Sidebar Toggle (Topbar) -->
@@ -290,7 +230,7 @@ if(isset($_POST['language'])){
                     <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
                         aria-labelledby="messagesDropdown">
                         <h6 class="dropdown-header">
-                            Message Center
+                            Mess    age Center
                         </h6>
                         <a class="dropdown-item d-flex align-items-center" href="#">
                             <div class="dropdown-list-image mr-3">
@@ -357,7 +297,7 @@ if(isset($_POST['language'])){
                     <!-- Dropdown - User Information -->
                     <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                         aria-labelledby="userDropdown">
-                        <a class="dropdown-item" href="profile.php">
+                        <a class="dropdown-item" href="#">
                             <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                             <?= $translations['profile']?>
                         </a>
@@ -370,7 +310,7 @@ if(isset($_POST['language'])){
                             <?= $translations['activity_log']?>
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="logout.php">
+                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
                             <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                             <?= $translations['logout']?>
                         </a>
@@ -379,7 +319,7 @@ if(isset($_POST['language'])){
 
             </ul>
 
-            </nav>
+        </nav>
         <!-- End of Topbar -->
 
         <!-- Begin Page Content -->
@@ -388,15 +328,54 @@ if(isset($_POST['language'])){
         <div class="container-md">
     <div class="row justify-content-center">
             <div class="col-md-6">
-                <div class="card px-5 py-5">
-                 <div class="mb-3"> 
-                 <?php
-                    $jwt = $_SESSION['jwt'];
-                    $decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
-                    echo "<h3>".$translations['welcome']." ".$decoded->username."</h3>";
-                ?>
+                <div class="card px-5 py-5 ">
+                    <form method="post">
+                    <div class="mb-3 align-items-center">
+                        <h3 class="text-success"><?= $translations['enter_code']?></h3>
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="login" name="totp_code" maxlength="6" required></input>
+                         </div>
+                         <div class="mb-3"><input class="btn btn-dark w-100" value="<?= $translations['submit']?>" type="submit" name="w"></input> 
+                         
+                        </div>
+                    </div>
+                    </form>
 
-                 </div>
+                    <?php
+                    if(isset($_POST['w'])){
+                        $servername = "kp120977-001.eu.clouddb.ovh.net";
+                        $username = "pwapoc";
+                        $pswrd = "AAQWpFyDN85gL4d";
+                        $db = "pwapoc";
+                        try {
+                            $dsn = "mysql:host=$servername;port=35467;dbname=$db";    
+                            $pdo = new PDO($dsn, $username, $pswrd);
+                            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                        } catch(PDOException $e) {
+                            echo "Connection failed: " . $e->getMessage();
+                        }
+                        $login = $_SESSION['login'];
+                        $authCode = $_SESSION['authCode'];  
+                        $payload = $_SESSION['payload'];
+                        $totp = TOTP::create($authCode);
+                        if ($totp->verify($_POST['totp_code'])) {                            
+                            $jwt = JWT::encode($payload, $secret_key, 'HS256');
+                            $createjwt = "UPDATE users SET jwtToken = :jwt WHERE login = :login";
+                            $stmt = $pdo->prepare($createjwt);
+                            $stmt->bindParam(':login', $login);
+                            $stmt->bindParam(':jwt', $jwt);
+                            $_SESSION['jwt'] = $jwt;
+                            if ($stmt->execute()) {
+                                echo "<script>window.location.href='UserIndex.php'</script>";
+                               
+                            }
+                        } else {
+                            // Code is invalid, deny login
+                            echo "<p class='text-danger'>".$translations['invalid_code']."</p>";
+                        }
+                    }
+                    ?>
+                </div>
                 </div>
             </div>
         </div>
@@ -409,14 +388,16 @@ if(isset($_POST['language'])){
     </div>
     <!-- End of Main Content -->
 
+    <!-- Footer -->
 
     <!-- End of Footer -->
 
-    
 </div>
 <!-- End of Content Wrapper -->
 
 </div>
+
+
 
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
@@ -431,3 +412,4 @@ if(isset($_POST['language'])){
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>
+

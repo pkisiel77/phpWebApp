@@ -1,7 +1,9 @@
 {
     "require": {
         "phpmailer/phpmailer": "^6.9",
-        "firebase/php-jwt": "^6.10"
+        "firebase/php-jwt": "^6.10",
+        "spomky-labs/otphp": "^10.0",
+        "selective/base32": "^2.0"
     }
 
 }

@@ -5,6 +5,8 @@ require 'jwt.php';
 require 'vendor/autoload.php';
 session_start();
 include 'bg.php';
+use OTPHP\TOTP;
+use Selective\Base32\Base32;
 $translations = loadTranslations($_SESSION['language']);
     $jwt = $_SESSION['jwt'];
     $servername = "kp120977-001.eu.clouddb.ovh.net";
@@ -124,9 +126,9 @@ if($decoded->admin==1){
 
     <!-- Nav Item - Charts -->
     <li class='nav-item'>
-        <a class='nav-link' href='charts.html'>
+        <a class='nav-link' href='perms.html'>
             <i class='fas fa-fw fa-chart-area'></i>
-            <span>".$translations['charts']."</span></a>
+            <span>".$translations['permissions']."</span></a>
     </li>
     <li class='nav-item'>
     <a class='nav-link' href='tables.php'>
@@ -452,9 +454,70 @@ if(isset($_POST['language'])){
                     <?php
                     $jwt = $_SESSION['jwt'];
                     $decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
+                    $servername = "kp120977-001.eu.clouddb.ovh.net";
+                    $username = "pwapoc";
+                    $pswrd = "AAQWpFyDN85gL4d";
+                    $db = "pwapoc";
+                    try {
+                        $dsn = "mysql:host=$servername;port=35467;dbname=$db";    
+                        $pdo = new PDO($dsn, $username, $pswrd);
+                        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                    } catch(PDOException $e) {
+                        echo "Connection failed: " . $e->getMessage();     
+                    }
+
                     echo "<h5>Username - ".$decoded->username."</h5>
                     <h5>E-mail - ".$decoded->email."</h5>";
+                    
+                    $authCheck = "SELECT * from users where login = '$decoded->username'";
+                    $resultauth = $pdo->query($authCheck);
+                    $fetchinfo = $resultauth->fetch(PDO::FETCH_ASSOC);
+                    $authCode = $fetchinfo['authCode'];                
+
                     ?>
+                        <?php if ($authCode == null): ?>
+                            <form method="post">
+                                <button type="submit" name="enable_2fa" class="btn-primary"><?= $translations['enable_2fa']?></button>
+                            </form>
+                        <?php else: ?>
+                            <p></p>
+
+                            <form method="post">
+                                <button type="submit" name="disable_2fa" class="btn-danger"><?= $translations['disable_2fa']?></button>
+                            </form>
+                        <?php endif; ?>
+                    <?php if(isset($_POST['enable_2fa'])){ 
+                        function generateSecretKey() {
+                            // Generate a random 20-byte string
+                            $base32 = new Base32();
+                            $randomBytes = random_bytes(20);
+    
+                            // Encode the random bytes using Base32 encoding
+                            $base32Encoded = $base32->encode($randomBytes);
+    
+                            // Trim the encoded string to 32 characters
+                            $sk = substr($base32Encoded, 0, 32);
+    
+                            return $sk;
+                        }
+
+                        $_SESSION['sk'] = generateSecretKey();
+
+
+                        echo "<script>window.location.href='2fa.php'</script>";
+                    }
+
+                    if(isset($_POST['disable_2fa'])){
+                        $updateAuth = "UPDATE users SET authCode = :authCodeKey where login = :login";
+                        $stmtAuth = $pdo->prepare($updateAuth);
+                        $stmtAuth->bindParam(':login', $decoded->username);
+                        $stmtAuth->bindParam(':authCodeKey', $value, PDO::PARAM_NULL);
+                        $stmtAuth->execute();
+                    }
+                    ?>
+
+                            
+
                  </div>
                 </div>
             </div>

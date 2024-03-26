@@ -1,4 +1,8 @@
 <?php
+use OTPHP\TOTP;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+require 'jwt.php';
 session_start();
 include 'bg.php';
 $translations = loadTranslations($_SESSION['language']);
@@ -340,9 +344,6 @@ if(isset($_POST['language'])){
                         <div class="mb-3"><input class="btn btn-dark w-100" value="<?= $translations['submit']?>" type="submit" name="w"></input> 
 
                         <?php
-                            use Firebase\JWT\JWT;
-                            use Firebase\JWT\Key;
-                            require 'jwt.php';
                             if(isset($_POST['w'])){
                                 $login = @$_POST['login'];
                                 $password = @$_POST['password'];
@@ -376,23 +377,42 @@ if(isset($_POST['language'])){
                                 
 
                                     if (password_verify($password, $hash)) {
-                                        $payload = array(
-                                            'role' => $admin,
-                                            'iat' => time(),
-                                            'username' => $login,
-                                            'password' => $hash,
-                                            'email' => $email,
-                                            'admin' => $admin
-                                            );
-                                        
-                                        $jwt = JWT::encode($payload, $secret_key, 'HS256');
-                                        $createjwt = "UPDATE users SET jwtToken = :jwt WHERE login = :login";
-                                        $stmt = $pdo->prepare($createjwt);
-                                        $stmt->bindParam(':login', $login);
-                                        $stmt->bindParam(':jwt', $jwt);
-                                        if ($stmt->execute()) {
-                                            echo "<script>window.location.href='UserIndex.php'</script>";
-                                            $_SESSION['jwt'] = $jwt;
+
+                                        if($fetchinfo['authCode'] == null)
+                                        {
+                                            $payload = array(
+                                                'role' => $admin,
+                                                'iat' => time(),
+                                                'username' => $login,
+                                                'password' => $hash,
+                                                'email' => $email,
+                                                'admin' => $admin
+                                                );
+                                            
+                                            $jwt = JWT::encode($payload, $secret_key, 'HS256');
+                                            $createjwt = "UPDATE users SET jwtToken = :jwt WHERE login = :login";
+                                            $stmt = $pdo->prepare($createjwt);
+                                            $stmt->bindParam(':login', $login);
+                                            $stmt->bindParam(':jwt', $jwt);
+                                            if ($stmt->execute()) {
+                                                echo "<script>window.location.href='UserIndex.php'</script>";
+                                                $_SESSION['jwt'] = $jwt;
+                                            }
+
+                                        }
+                                        else{
+                                            $payload = array(
+                                                'role' => $admin,
+                                                'iat' => time(),
+                                                'username' => $login,
+                                                'password' => $hash,
+                                                'email' => $email,
+                                                'admin' => $admin
+                                                );
+                                            $_SESSION['authCode'] = $fetchinfo['authCode'];
+                                            $_SESSION['payload'] = $payload;
+                                            $_SESSION['login'] = $login;
+                                            echo "<script>window.location.href='loginAuth.php'</script>";
                                         }
                                     } else {
                                         echo "<small><p class='text-danger'>".$translations['invalid_password']."</p></small>";;

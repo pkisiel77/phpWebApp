@@ -2,6 +2,40 @@
 session_start();
 include 'bg.php';
 $translations = loadTranslations($_SESSION['language']);
+$servername = "kp120977-001.eu.clouddb.ovh.net";
+$username = "pwapoc";
+$pswrd = "AAQWpFyDN85gL4d";
+$db = "pwapoc";
+// $conn = new mysqli($servername, $username, $pswrd, $db, '35467');
+try {
+    $dsn = "mysql:host=$servername;port=35467;dbname=$db";    
+    $pdo = new PDO($dsn, $username, $pswrd);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    echo "Connection failed: " . $e->getMessage();
+}
+    // if ($conn->connect_error) {
+    //     die("Connection failed: " . $conn->connect_error);
+    // }
+    if(isset($_POST['w'])){
+    
+    $rowlogin = $_POST['lgn']; 
+    $logincheck = "SELECT * from users where login = '$rowlogin'";
+    $resultlog = $pdo->query($logincheck);
+    $fetchinfo = $resultlog->fetch(PDO::FETCH_ASSOC);
+    $status = $fetchinfo['status'];
+
+    // Toggle the value of is_active
+    $new_value = $status == 1 ? 0 : 1;
+    
+    $update_sql = "UPDATE users SET status = :new_value WHERE login = :rowlogin";
+    $stmt = $pdo->prepare($update_sql);
+    $stmt->bindParam(':new_value', $new_value);
+    $stmt->bindParam(':rowlogin', $rowlogin);
+    $stmt->execute();
+    header("Location: ".$_SERVER['PHP_SELF']);
+    exit();
+    }
     ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -391,21 +425,8 @@ echo"<script>window.location.href = '".$_SERVER['PHP_SELF']."'</script>";}
                  } catch(PDOException $e) {
                      echo "Connection failed: " . $e->getMessage();
                  }
-                    $current_page = @$_GET['page'];
-                    $_SESSION['page'] = $current_page;
-                    if ($current_page > 1) {
-                        $offset = ($current_page - 1) * 3;
-                    } else {
-                        $offset = 0;
-                    }
-                    $whereClause = "";
-                    // Construct the WHERE clause for searching
-                    if (isset($_POST['submitSearch'])) {
-                        $searchTerm = $_POST['searchTerm'];
-                        $whereClause = "WHERE login LIKE '%$searchTerm%' OR email LIKE '%$searchTerm%' OR roleName LIKE '%$searchTerm%' OR status LIKE '%$searchTerm%'";
-                    }
 
-                    $sql = "SELECT * FROM users join user_roles on users.userID=user_roles.userID join roles on roles.roleID=user_roles.roleID $whereClause limit 3 OFFSET $offset";
+                    $sql = "select * from roles join rolePerms on roles.roleID=rolePerms.roleID join permissions on rolePerms.permissionID=permissions.permissionID";
                     $result = $pdo->query($sql);
                     if (!$result) {
                         die('Error in SQL query: ' . mysqli_error($conn));
@@ -416,117 +437,54 @@ echo"<script>window.location.href = '".$_SERVER['PHP_SELF']."'</script>";}
                             $data[] = $row;
                         }
                     }
-                    $totalRecordsQuery = "SELECT COUNT(*) AS count FROM users";
-$totalRecordsStmt = $pdo->query($totalRecordsQuery);
-$totalRecords = $totalRecordsStmt->fetch(PDO::FETCH_ASSOC)['count'];
 
-// Calculate total pages
-$_SESSION['totalPages'] = ceil($totalRecords / 3);
 
                     ?>
-    <form method="post">
-     <input type="text" id="search-input" name="searchTerm" placeholder="Search..."/>
-    <!-- Custom Submit Button -->
-                </form>               
+         
+         <form method="post">
 <table id="tabledata" class="table table-striped" style="width:100%">
     <thead>
         <tr>
-            <th>Login</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th>Change</th>
+            <th>Permission Name</th>
+        <?php foreach($data as $row): ?>
+            <th><?= $row['roleName']?></th>
+        <?php endforeach ?>
         </tr>
     </thead>
     <tbody>
         
-        <?php foreach($data as $row): ?>
+    <?php
+        // Extract unique permission names
+        $permissions = array_unique(array_column($data, 'permission'));
+
+        // Iterate over permissions
+        foreach ($permissions as $permission): ?>
             <tr>
-                <td><?php echo $row['login']; ?></td> 
-                <td><?php echo $row['email']; ?></td>
-                <td><?php echo $row['roleName']; ?></td>
-                <td><?php echo $row['status']; ?></td>
-                <td>
-                <button type="button" name="wh" class="btn btn-primary change-button" data-toggle="modal" data-target="<?php echo "#modal".$row['userID']?>">Change</button>
-                </td>
+                <td><?= $permission ?></td>
+                <?php
+                // Iterate over roles
+                foreach ($data as $row): ?>
+                    <td>
+                        <?php if ($row['haspermission'] == true): ?>
+                            <input type="checkbox" name="permission_checkbox<?= $row['roleID']?>" value="<?= $row['permissionID'] ?>" checked>
+                        <?php else: ?>
+                            <input type="checkbox" name="permission_checkbox<?= $row['roleID']?>" value="<?= $row['permissionID'] ?>">
+                        <?php endif; ?>
+                    </td>
+                    <input type="hidden" name="lgn" value="<?php echo $row['roleID']; ?>">
+                <?php endforeach ?>
             </tr>
-            
-            <div class="modal fade" id="<?php echo "modal".$row['userID']?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Edit</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-                    <div class="mb-3 align-items-center">
-                    <form method="post" id="<?php echo "myForm".$row['userID']?>" class="row g-3">
-                    <?php
-               
-
-                    echo"
-                        <div class='mb-3'>
-                        <label for='email' class='form-label'>E-mail</label>
-                        <input type='email' class='form-control' id='email' name='email".$row['userID']."' maxlength='30'  value='".$row['email']."' required></input>";
-                        
-                        if(isset($_POST['ws'])){
-                            $email = $_POST['email'.$row['userID']];
-                            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                                echo"<small><p class='text-danger'> Invalid e-mail format.</p></small>";
-                            }
-                        }
-                       echo"
-                     </div>
-
-                    <div class='mb-3'>
-                        <label for='login' class='form-label'>Login</label>
-                        <input type='text' class='form-control' id='login' name='login".$row['userID']."' maxlength='30' value='".$row['login']."' required></input>
-                     </div>
-
-                    <div class='mb-3'>
-                        <label for='role' class='form-label'>Role</label>
-                        <input type='text' min='0' class='form-control' id='role' name='role".$row['userID']."' maxlength='1' value='".$row['roleID']."' required></input>
-                     </div>
-
-                     <div class='mb-3'>
-                     <label for='status' class='form-label'>Status</label>
-                     <input type='number' max='1' min='0' class='form-control' id='status' name='status".$row['userID']."' maxlength='1' value='".$row['status']."' required></input>
-                  </div>
-                    </div>";
-                        ?>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-
-        <input type="hidden" name="lgn" value="<?php echo $row['userID']; ?>">
-        <button type="submit" form="<?php echo "myForm".$row['userID']?>" class="btn btn-primary" value="Save Changes" name="ws">Save Changes</button>
-        
-      </div>
-    </div>
-  </div>
-</div>
-</form>         
-
         <?php endforeach; ?>
     </tbody>
 </table>
-<?php
-echo "Pages: ";
-for ($i = 1; $i <= $_SESSION['totalPages']; $i++) {
-    echo "<a href='?page=$i'>$i</a> ";
-}
-
-?>
-<p id='modalPlace'></p>
+<input class="btn btn-dark w-100" value="<?= $translations['submit']?>" type="submit" name="wa"></input> 
                  </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
+</form>
         </div>
         <!-- /.container-fluid -->
 
@@ -544,25 +502,13 @@ try {
 } catch(PDOException $e) {
     echo "Connection failed: " . $e->getMessage();
 }
-    // if ($conn->connect_error) {
-    //     die("Connection failed: " . $conn->connect_error);
-    // }
-    if(isset($_POST['ws'])){
-    $ID = $_POST['lgn']; 
-    $newlogin = $_POST['login'.$ID];
-    $newemail = $_POST['email'.$ID];
-    $newrole = $_POST['role'.$ID];
-    $newstatus = $_POST['status'.$ID];
-    $update_sql = "UPDATE users JOIN user_roles ON users.userID = user_roles.userID SET users.login = :newlogin, users.email = :newemail, users.status = :newstatus, user_roles.roleID = :newrole WHERE users.userID = :ID";
-    $stmt = $pdo->prepare($update_sql);
-    $stmt->bindParam(':newlogin', $newlogin);
-    $stmt->bindParam(':newemail', $newemail);
-    $stmt->bindParam(':newstatus', $newstatus);
-    $stmt->bindParam(':newrole', $newrole);
-    $stmt->bindParam(':ID', $ID);
-    $stmt->execute();
-    echo"<script>window.location.href = '".$_SERVER['PHP_SELF']."'</script>";
+$ID = $_POST['lgn'];
+if(isset($_POST['wa'])){
+    if(isset($_POST['permission_checkbox1'])){
+        echo 'test';
     }
+}
+
 ?>
 
 
@@ -600,128 +546,6 @@ $(document).ready(function() {
             "info": ""
         }
         
-    });
-// Function to generate modal dynamically
-function generateModal(userData) {
-  // Modal Template
-  var modalTemplate = `
-    <div class="modal fade" id="modal-${userData.userID}" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="userModalLabel">User Details</h5>
-            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div class="mb-3">
-                <label for="email" class="form-label">E-mail</label>
-                <input type="email" class="form-control" id="email-${userData.userID}" name="email-${userData.userID}" maxlength="30" value="${userData.email}" required>
-            </div>
-
-            <div class="mb-3">
-                <label for="login" class="form-label">Login</label>
-                <input type="text" class="form-control" id="login-${userData.userID}" name="login-${userData.userID}" maxlength="30" value="${userData.login}" required>
-            </div>
-
-            <div class="mb-3">
-                <label for="role" class="form-label">Role</label>
-                <input type="text" min="0" class="form-control" id="role-${userData.userID}" name="role-${userData.userID}" maxlength="1" value="${userData.roleID}" required>
-            </div>
-
-            <div class="mb-3">
-                <label for="status" class="form-label">Status</label>
-                <input type="number" max="1" min="0" class="form-control" id="status-${userData.userID}" name="status-${userData.userID}" maxlength="1" value="${userData.status}" required>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <form id="myForm${userData.userID}" method="post">
-              <input type="hidden" name="lgn" value="${userData.userID}">
-              <button type="submit" class="btn btn-primary" name="ws">Save Changes</button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-
-  // Append modal template to the body
-  document.body.insertAdjacentHTML('beforeend', modalTemplate);
-}
-
-// Update table rows function
-function updateTableRows(response) {
-  // Clear existing rows in the table
-  table.clear();
-
-  // Add new rows with fetched data
-  response.forEach(function(row) {
-    table.row.add([
-      row.login,
-      row.email,
-      row.roleName,
-      row.status,
-      '<button type="button" class="btn btn-primary change-button" data-toggle="modal" data-target="#modal-' + row.userID + '">Change</button>'
-    ]).draw();
-    generateModal(row);
-  });
-
-  // Add event listener to dynamically created buttons to show modal
-  $('.change-button').off('click').on('click', function() {
-    var targetModal = $(this).data('target'); // Get the data-target attribute value
-    $(targetModal).modal('show'); // Show the modal corresponding to the clicked button
-  });
-}
-
-    $("#search-input").keyup(function(){
-
-                var inputData = $(this).val();
-                if(inputData.length >= 3){
-                // AJAX call
-                $.ajax({
-                    type: "POST",
-                    url: "ajaxTEST.php", // Your PHP script file
-                    data: { data: inputData }, // Data to be sent
-                    success: function(response){
-                        var jsonData = JSON.parse(response);
-                        // Update table rows with the parsed data
-                        updateTableRows(jsonData);
-                    }
-                });
-            }
-            else{
-                
-            }
-            });
-
-
-
-
-
-    // Function to update URL with current page
-    function updateURLWithPage() {
-        var currentPage = table.page();
-        var currentURL = window.location.href;
-
-        // Check if the URL already contains ?page=
-        if (currentURL.indexOf('?page=') === -1) {
-            // Append the current page as a query parameter
-            currentURL += (currentURL.indexOf('?') !== -1 ? '&' : '?') + 'page=' + currentPage;
-        } else {
-            // Update the value of page parameter
-            currentURL = currentURL.replace(/(page=)[^\&]+/, '$1' + currentPage);
-        }
-
-        // Redirect to the updated URL
-        window.history.replaceState({}, document.title, currentURL);
-    }
-
-    // Initial update
-    updateURLWithPage();
-
-    // Listen for the draw event on the DataTable
-    table.on('draw.dt', function() {
-        updateURLWithPage();
     });
 });
 

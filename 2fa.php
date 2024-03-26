@@ -1,10 +1,12 @@
 <?php
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use Selective\Base32\Base32;
 require 'jwt.php';
 require 'vendor/autoload.php';
 session_start();
 include 'bg.php';
+use OTPHP\TOTP;
 $translations = loadTranslations($_SESSION['language']);
     $jwt = $_SESSION['jwt'];
     $servername = "kp120977-001.eu.clouddb.ovh.net";
@@ -25,7 +27,6 @@ $translations = loadTranslations($_SESSION['language']);
         $conn->close();
     }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -389,12 +390,64 @@ if(isset($_POST['language'])){
     <div class="row justify-content-center">
             <div class="col-md-6">
                 <div class="card px-5 py-5">
-                 <div class="mb-3"> 
-                 <?php
+                <div class="mb-3">
+
+                    <?php
+
+                    function generateQRCodeURL($label, $secret) {
+                        return 'https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl=' . urlencode("otpauth://totp/{$label}?secret={$secret}&issuer=YourApp");
+                    }
                     $jwt = $_SESSION['jwt'];
                     $decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
-                    echo "<h3>".$translations['welcome']." ".$decoded->username."</h3>";
-                ?>
+                    $servername = "kp120977-001.eu.clouddb.ovh.net";
+                    $username = "pwapoc";
+                    $pswrd = "AAQWpFyDN85gL4d";
+                    $db = "pwapoc";
+                    try {
+                        $dsn = "mysql:host=$servername;port=35467;dbname=$db";    
+                        $pdo = new PDO($dsn, $username, $pswrd);
+                        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                    } catch(PDOException $e) {
+                        echo "Connection failed: " . $e->getMessage();     
+                    }
+
+                    
+                    $authCheck = "SELECT * from users where login = '$decoded->username'";
+                    $resultauth = $pdo->query($authCheck);
+                    $fetchinfo = $resultauth->fetch(PDO::FETCH_ASSOC);
+                    $authCode = $fetchinfo['authCode'];                
+
+                    // Example usage:
+                    $authCodeKey = $_SESSION['sk'];
+                    $totp = TOTP::create($authCodeKey);
+                    $qrCodeUrl = generateQRCodeURL('YourApp:'.$fetchinfo['email'], $authCodeKey);
+                    ?>
+
+                    <p><?=$translations['scan_qr']?></p>
+                    <img src='<?= $qrCodeUrl?>'/>
+                    <form method='post'>
+                        <input type='text' id='totp_code' name='totp_code' required>
+                        <button type='submit' name='codeTest'><?=$translations['submit']?></button>
+                    </form>
+                    
+
+                    <?php
+                    if(isset($_POST['codeTest'])){
+                        if ($totp->verify($_POST['totp_code'])) {
+                            // Code is valid, allow login
+                            $updateAuth = "UPDATE users SET authCode = :authCodeKey where login = :login";
+                            $stmtAuth = $pdo->prepare($updateAuth);
+                            $stmtAuth->bindParam(':login', $decoded->username);
+                            $stmtAuth->bindParam(':authCodeKey', $authCodeKey);
+                            $stmtAuth->execute();
+                            echo "<script>window.location.href='profile.php'</script>";
+                        } else {
+                            // Code is invalid, deny login
+                            echo $translations['invalid_code'];
+                        }
+                    }
+                    ?>
+                                        
 
                  </div>
                 </div>
@@ -402,7 +455,6 @@ if(isset($_POST['language'])){
         </div>
     </div>
 </div>
-
         </div>
         <!-- /.container-fluid -->
 
