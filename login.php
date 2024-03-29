@@ -1,5 +1,4 @@
 <?php
-
 global $secret_key;
 
 use OTPHP\TOTP;
@@ -10,7 +9,15 @@ require 'jwt.php';
 session_start();
 include 'bg.php';
 $translations = loadTranslations($_SESSION['language']);
+
+$servername = getenv('DB_SERVERNAME');
+$username = getenv('DB_USERNAME');
+$passwd = getenv('DB_PASSWORD');
+$db = getenv('DB_NAME');
+$port = getenv('DB_PORT');
+
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -371,14 +378,9 @@ $translations = loadTranslations($_SESSION['language']);
                                             if (isset($_POST['w'])) {
                                                 $login = @$_POST['login'];
                                                 $password = @$_POST['password'];
-
-                                                $servername = "kp120977-001.eu.clouddb.ovh.net";
-                                                $username = "pwapoc";
-                                                $pswrd = "AAQWpFyDN85gL4d";
-                                                $db = "pwapoc";
                                                 try {
-                                                    $dsn = "mysql:host=$servername;port=35467;dbname=$db";
-                                                    $pdo = new PDO($dsn, $username, $pswrd);
+                                                    $dsn = "mysql:host=$servername;port=$port;dbname=$db";
+                                                    $pdo = new PDO($dsn, $username, $passwd);
                                                     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                                                 } catch (PDOException $e) {
                                                     echo "Connection failed: " . $e->getMessage();
@@ -389,15 +391,12 @@ $translations = loadTranslations($_SESSION['language']);
                                                 $fetchinfo = $resultlog->fetch(PDO::FETCH_ASSOC);
 
                                                 if (!$fetchinfo) {
-                                                    // Handle the case where no matching record was found
                                                     echo "<small><p class='text-danger'>" . $translations['this_account_does_not_exist'] . "</p></small>";
                                                 } else {
 
                                                     $hash = $fetchinfo['passHash'];
                                                     $email = $fetchinfo['email'];
                                                     $admin = $fetchinfo['roleID'];
-                                                    // Further processing
-
 
                                                     if (password_verify($password, $hash)) {
 
@@ -444,8 +443,6 @@ $translations = loadTranslations($_SESSION['language']);
                                             ?>
 
                                         </div>
-
-
                                         <div class="row mb-1">
                                             <small><?= $translations['dont_have_an_account'] ?> <a class="text-danger "
                                                                                                    href="register.php"><?= $translations['register'] ?></a></small>
@@ -469,12 +466,7 @@ $translations = loadTranslations($_SESSION['language']);
     <!-- End of Footer -->
 
 </div>
-<!-- End of Content Wrapper -->
 
-</div>
-
-
-<!-- Bootstrap core JavaScript-->
 <script src="js/jquery/jquery.min.js"></script>
 <script src="js/bootstrap/js/bootstrap.bundle.min.js"></script>
 
