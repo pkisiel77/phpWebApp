@@ -1,5 +1,7 @@
 <?php
 
+global $secret_key;
+
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
@@ -9,11 +11,14 @@ session_start();
 include 'bg.php';
 $translations = loadTranslations($_SESSION['language']);
 $jwt = $_SESSION['jwt'];
-$servername = "kp120977-001.eu.clouddb.ovh.net";
-$username = "pwapoc";
-$pswrd = "AAQWpFyDN85gL4d";
-$db = "pwapoc";
-$conn = new mysqli($servername, $username, $pswrd, $db, '35467');
+
+$servername = getenv('DB_SERVERNAME');
+$username = getenv('DB_USERNAME');
+$passwd = getenv('DB_PASSWORD');
+$db = getenv('DB_NAME');
+$port = getenv('DB_PORT');
+
+$conn = new mysqli($servername, $username, $passwd, $db, $port);
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -416,20 +421,8 @@ if (!$matchFound) {
                     </div>
                 </div>
             </div>
-
         </div>
-        <!-- /.container-fluid -->
-
     </div>
-    <!-- End of Main Content -->
-
-
-    <!-- End of Footer -->
-
-
-</div>
-<!-- End of Content Wrapper -->
-
 </div>
 
 <!-- Bootstrap core JavaScript-->

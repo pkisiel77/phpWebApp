@@ -3,6 +3,13 @@ global $conn;
 session_start();
 include 'bg.php';
 $translations = loadTranslations($_SESSION['language']);
+
+$servername = getenv('DB_SERVERNAME');
+$username = getenv('DB_USERNAME');
+$passwd = getenv('DB_PASSWORD');
+$db = getenv('DB_NAME');
+$port = getenv('DB_PORT');
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -392,14 +399,9 @@ $translations = loadTranslations($_SESSION['language']);
                             <div class="card px-5 py-5">
                                 <div class="mb-3">
                                     <?php
-                                    $servername = "kp120977-001.eu.clouddb.ovh.net";
-                                    $username = "pwapoc";
-                                    $pswrd = "AAQWpFyDN85gL4d";
-                                    $db = "pwapoc";
-                                    // $conn = new mysqli($servername, $username, $pswrd, $db, '35467');
                                     try {
-                                        $dsn = "mysql:host=$servername;port=35467;dbname=$db";
-                                        $pdo = new PDO($dsn, $username, $pswrd);
+                                        $dsn = "mysql:host=$servername;port=$port;dbname=$db";
+                                        $pdo = new PDO($dsn, $username, $passwd);
                                         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                                     } catch (PDOException $e) {
                                         echo "Connection failed: " . $e->getMessage();
@@ -559,24 +561,14 @@ $translations = loadTranslations($_SESSION['language']);
 
         </div>
         <!-- /.container-fluid -->
-
-
         <?php
-        $servername = "kp120977-001.eu.clouddb.ovh.net";
-        $username = "pwapoc";
-        $pswrd = "AAQWpFyDN85gL4d";
-        $db = "pwapoc";
-        // $conn = new mysqli($servername, $username, $pswrd, $db, '35467');
         try {
-            $dsn = "mysql:host=$servername;port=35467;dbname=$db";
-            $pdo = new PDO($dsn, $username, $pswrd);
+            $dsn = "mysql:host=$servername;port=$port;dbname=$db";
+            $pdo = new PDO($dsn, $username, $passwd);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
             echo "Connection failed: " . $e->getMessage();
         }
-        // if ($conn->connect_error) {
-        //     die("Connection failed: " . $conn->connect_error);
-        // }
         if (isset($_POST['ws'])) {
             $ID = $_POST['lgn'];
             $newlogin = $_POST['login' . $ID];
@@ -594,19 +586,9 @@ $translations = loadTranslations($_SESSION['language']);
             echo "<script>window.location.href = '" . $_SERVER['PHP_SELF'] . "'</script>";
         }
         ?>
-
-
     </div>
-    <!-- End of Main Content -->
-
-
-    <!-- End of Footer -->
-
-
 </div>
-<!-- End of Content Wrapper -->
 
-</div>
 
 <!-- Bootstrap core JavaScript-->
 <script src="vendor/jquery/jquery.min.js"></script>
