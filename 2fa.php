@@ -411,9 +411,7 @@ if (!$matchFound) {
                         <div class="col-md-6">
                             <div class="card px-5 py-5">
                                 <div class="mb-3">
-
                                     <?php
-
                                     function generateQRCodeURL($label, $secret)
                                     {
                                         return 'https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl=' . urlencode("otpauth://totp/{$label}?secret={$secret}&issuer=YourApp");
@@ -421,18 +419,13 @@ if (!$matchFound) {
 
                                     $jwt = $_SESSION['jwt'];
                                     $decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
-                                    $servername = "kp120977-001.eu.clouddb.ovh.net";
-                                    $username = "pwapoc";
-                                    $pswrd = "AAQWpFyDN85gL4d";
-                                    $db = "pwapoc";
                                     try {
-                                        $dsn = "mysql:host=$servername;port=35467;dbname=$db";
-                                        $pdo = new PDO($dsn, $username, $pswrd);
+                                        $dsn = "mysql:host=$servername;port=$port;dbname=$db";
+                                        $pdo = new PDO($dsn, $username, $passwd);
                                         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                                     } catch (PDOException $e) {
                                         echo "Connection failed: " . $e->getMessage();
                                     }
-
 
                                     $authCheck = "SELECT * from users where login = '$decoded->username'";
                                     $resultauth = $pdo->query($authCheck);
@@ -469,8 +462,6 @@ if (!$matchFound) {
                                         }
                                     }
                                     ?>
-
-
                                 </div>
                             </div>
                         </div>
@@ -478,19 +469,9 @@ if (!$matchFound) {
                 </div>
             </div>
         </div>
-        <!-- /.container-fluid -->
-
     </div>
-    <!-- End of Main Content -->
-
-
-    <!-- End of Footer -->
-
-
 </div>
-<!-- End of Content Wrapper -->
 
-</div>
 
 <!-- Bootstrap core JavaScript-->
 <script src="vendor/jquery/jquery.min.js"></script>

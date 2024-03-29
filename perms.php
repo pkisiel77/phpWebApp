@@ -424,14 +424,9 @@ if (isset($_POST['w'])) {
                             <div class="card px-5 py-5">
                                 <div class="mb-3">
                                     <?php
-                                    $servername = "kp120977-001.eu.clouddb.ovh.net";
-                                    $username = "pwapoc";
-                                    $pswrd = "AAQWpFyDN85gL4d";
-                                    $db = "pwapoc";
-                                    // $conn = new mysqli($servername, $username, $pswrd, $db, '35467');
                                     try {
                                         $dsn = "mysql:host=$servername;port=35467;dbname=$db";
-                                        $pdo = new PDO($dsn, $username, $pswrd);
+                                        $pdo = new PDO($dsn, $username, $passwd);
                                         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                                     } catch (PDOException $e) {
                                         echo "Connection failed: " . $e->getMessage();
@@ -507,14 +502,9 @@ if (isset($_POST['w'])) {
 
 
         <?php
-        $servername = "kp120977-001.eu.clouddb.ovh.net";
-        $username = "pwapoc";
-        $pswrd = "AAQWpFyDN85gL4d";
-        $db = "pwapoc";
-        // $conn = new mysqli($servername, $username, $pswrd, $db, '35467');
         try {
-            $dsn = "mysql:host=$servername;port=35467;dbname=$db";
-            $pdo = new PDO($dsn, $username, $pswrd);
+            $dsn = "mysql:host=$servername;port=$port;dbname=$db";
+            $pdo = new PDO($dsn, $username, $passwd);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
             echo "Connection failed: " . $e->getMessage();
@@ -527,19 +517,9 @@ if (isset($_POST['w'])) {
         }
 
         ?>
-
-
     </div>
-    <!-- End of Main Content -->
-
-
-    <!-- End of Footer -->
-
-
 </div>
-<!-- End of Content Wrapper -->
 
-</div>
 
 <!-- Bootstrap core JavaScript-->
 <script src="vendor/jquery/jquery.min.js"></script>

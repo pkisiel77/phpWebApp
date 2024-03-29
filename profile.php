@@ -413,13 +413,9 @@ if (!$matchFound) {
                             <div class="card px-5 py-5">
                                 <div class="mb-3">
                                     <?php
-                                    $servername = "kp120977-001.eu.clouddb.ovh.net";
-                                    $username = "pwapoc";
-                                    $pswrd = "AAQWpFyDN85gL4d";
-                                    $db = "pwapoc";
                                     try {
-                                        $dsn = "mysql:host=$servername;port=35467;dbname=$db";
-                                        $pdo = new PDO($dsn, $username, $pswrd);
+                                        $dsn = "mysql:host=$servername;port=$port;dbname=$db";
+                                        $pdo = new PDO($dsn, $username, $passwd);
                                         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                                     } catch (PDOException $e) {
                                         echo "Connection failed: " . $e->getMessage();
@@ -475,18 +471,13 @@ if (!$matchFound) {
                                     <?php
                                     $jwt = $_SESSION['jwt'];
                                     $decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
-                                    $servername = "kp120977-001.eu.clouddb.ovh.net";
-                                    $username = "pwapoc";
-                                    $pswrd = "AAQWpFyDN85gL4d";
-                                    $db = "pwapoc";
                                     try {
-                                        $dsn = "mysql:host=$servername;port=35467;dbname=$db";
-                                        $pdo = new PDO($dsn, $username, $pswrd);
+                                        $dsn = "mysql:host=$servername;port=$port;dbname=$db";
+                                        $pdo = new PDO($dsn, $username, $passwd);
                                         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                                     } catch (PDOException $e) {
                                         echo "Connection failed: " . $e->getMessage();
                                     }
-
                                     echo "<h5>Username - " . $decoded->username . "</h5>
                     <h5>E-mail - " . $decoded->email . "</h5>";
 
@@ -494,7 +485,6 @@ if (!$matchFound) {
                                     $resultauth = $pdo->query($authCheck);
                                     $fetchinfo = $resultauth->fetch(PDO::FETCH_ASSOC);
                                     $authCode = $fetchinfo['authCode'];
-
                                     ?>
                                     <?php if ($authCode == null): ?>
                                         <form method="post">
@@ -515,22 +505,16 @@ if (!$matchFound) {
                                             // Generate a random 20-byte string
                                             $base32 = new Base32();
                                             $randomBytes = random_bytes(20);
-
                                             // Encode the random bytes using Base32 encoding
                                             $base32Encoded = $base32->encode($randomBytes);
-
                                             // Trim the encoded string to 32 characters
                                             $sk = substr($base32Encoded, 0, 32);
-
                                             return $sk;
                                         }
 
                                         $_SESSION['sk'] = generateSecretKey();
-
-
                                         echo "<script>window.location.href='2fa.php'</script>";
                                     }
-
                                     if (isset($_POST['disable_2fa'])) {
                                         $updateAuth = "UPDATE users SET authCode = :authCodeKey where login = :login";
                                         $stmtAuth = $pdo->prepare($updateAuth);
@@ -539,8 +523,6 @@ if (!$matchFound) {
                                         $stmtAuth->execute();
                                     }
                                     ?>
-
-
                                 </div>
                             </div>
                         </div>
@@ -548,18 +530,7 @@ if (!$matchFound) {
                 </div>
             </div>
         </div>
-        <!-- /.container-fluid -->
-
     </div>
-    <!-- End of Main Content -->
-
-
-    <!-- End of Footer -->
-
-
-</div>
-<!-- End of Content Wrapper -->
-
 </div>
 
 <!-- Bootstrap core JavaScript-->

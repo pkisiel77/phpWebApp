@@ -361,17 +361,13 @@ if (!$matchFound) {
                                             } else {
                                                 echo "<h3 class='text-success'>Zresetowano!</h3><small><a class='text-primary' href='index.php'>Powrót</a></small>";
                                                 $token = @$_GET['token'];
-                                                $servername = "kp120977-001.eu.clouddb.ovh.net";
-                                                $username = "pwapoc";
-                                                $pswrd = "AAQWpFyDN85gL4d";
-                                                $db = "pwapoc";
-                                                $conn = new mysqli($servername, $username, $pswrd, $db, '35467');
+                                                $conn = new mysqli($servername, $username, $passwd, $db, $port);
 
                                                 if ($conn->connect_error) {
                                                     die("Connection failed: " . $conn->connect_error);
                                                 }
                                                 try {
-                                                    $pdo = new PDO("mysql:host=kp120977-001.eu.clouddb.ovh.net;dbname=pwapoc;charset=utf8", "pwapoc", "AAQWpFyDN85gL4d");
+                                                    $pdo = new PDO("mysql:host=$servername;dbname=$db;charset=utf8", $username, $passwd);
                                                     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                                                 } catch (PDOException $e) {
                                                     echo "Connection failed: " . $e->getMessage();
