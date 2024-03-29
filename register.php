@@ -46,7 +46,7 @@ $translations = loadTranslations($_SESSION['language']);
 
     <!-- Nav Item - Dashboard -->
     <li class="nav-item">
-        <a class="nav-link" href="MainPage.php">
+        <a class="nav-link" href="index.php">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span><?= $translations['dashboard']?></span></a>
     </li>

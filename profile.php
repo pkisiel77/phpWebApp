@@ -23,7 +23,7 @@ $translations = loadTranslations($_SESSION['language']);
     $matchFound = mysqli_num_rows($result);
     if(!$matchFound)
     {
-        header("Location: MainPage.php");
+        header("Location: index.php");
         $conn->close();
     }
 ?>

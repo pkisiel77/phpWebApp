@@ -1,1 +1,5 @@
 # phpWebApp
+
+```shell
+composer update
+```

@@ -19,7 +19,7 @@ try {
 $jwt = $_SESSION['jwt'];
 $removejwt = "UPDATE users SET jwtToken = null WHERE jwtToken = '$jwt'";
 if ($pdo->query($removejwt)) {
-    header("Location: MainPage.php");
+    header("Location: index.php");
     $conn->close();
     session_destroy();  
 }

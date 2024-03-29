@@ -61,7 +61,7 @@ session_start();
 
     <!-- Nav Item - Dashboard -->
     <li class="nav-item">
-        <a class="nav-link" href="MainPage.php">
+        <a class="nav-link" href="index.php">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Dashboard</span></a>
     </li>
@@ -353,7 +353,7 @@ session_start();
                                 echo "<small><p class='text-danger'> Password must be at least 8 characters, have uppercase and lowercase letters, a number and a special symbol.</p></small>";
                                 }   
                                 else{
-                                    echo "<h3 class='text-success'>Zresetowano!</h3><small><a class='text-primary' href='MainPage.php'>Powrót</a></small>";
+                                    echo "<h3 class='text-success'>Zresetowano!</h3><small><a class='text-primary' href='index.php'>Powrót</a></small>";
                                     $token = @$_GET['token'];
                                     $servername = "kp120977-001.eu.clouddb.ovh.net";
                                     $username = "pwapoc";
