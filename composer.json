@@ -1,11 +1,11 @@
 {
-    "require": {
-        "phpmailer/phpmailer": "^6.9",
-        "firebase/php-jwt": "^6.10",
-        "spomky-labs/otphp": "^10.0",
-        "selective/base32": "^2.0",
-        "components/jquery": "^3.7",
-        "ext-pdo": "*"
-    }
-
+  "require": {
+    "phpmailer/phpmailer": "^6.9",
+    "firebase/php-jwt": "^6.10",
+    "spomky-labs/otphp": "^10.0",
+    "selective/base32": "^2.0",
+    "components/jquery": "^3.7",
+    "ext-pdo": "*",
+    "ext-json": "*"
+  }
 }
